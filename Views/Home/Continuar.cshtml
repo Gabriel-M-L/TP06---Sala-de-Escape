@@ -1,0 +1,21 @@
+@{
+    ViewData["Title"] = "Continuar Partida";
+}
+
+<h1>Continuar Partida</h1>
+
+<section>
+    <h2>Continuar partida</h2>
+    <p>@ViewBag.Mensaje</p>
+    <form method="post" action="@Url.Action("Jugar", "Home")">
+        <p>Ingrese el nombre de usuario</p>
+        <input type="text" name="usuario" id="usuario" required />
+        <input type="hidden" name="continuar" value="true"/>
+        <button type="submit">Continuar</button>
+    </form>
+    <h3>Opciones</h3>
+    <ul>
+        <li><a href="@Url.Action("Juego", "Home")">Comenzar nueva partida</a></li>
+        <li><a href="@Url.Action("Index", "Home")">Volver al inicio</a></li>
+    </ul>
+</section>

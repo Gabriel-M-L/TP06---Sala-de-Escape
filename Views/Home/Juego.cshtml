@@ -1,0 +1,21 @@
+@{
+    ViewData["Title"] = "Nueva Partida";
+}
+
+<h1>Nueva Partida</h1>
+
+<section>
+    <h2>Instrucciones</h2>
+    <p>Bienvenido al juego de Escape Room. Antes de comenzar, por favor ingresa tu nombre de usuario para iniciar una nueva partida.</p>
+    <p>@ViewBag.Mensaje</p>
+    <form method="post" action="@Url.Action("Jugar", "Home")">
+        <p>Nombre de Usuario:</p>
+        <input type="text" name="usuario" id="usuario" required />
+        <input type="hidden" name="continuar" value="false"/>
+        <button type="submit">Comenzar</button>
+    </form>
+</section>
+
+<div>
+    <p><a href="@Url.Action("Index", "Home")">Volver al inicio</a></p>
+</div>
