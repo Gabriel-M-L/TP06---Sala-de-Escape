@@ -54,7 +54,9 @@ public class HomeController : Controller
                 ViewBag.Mensaje = "Usuario inexistente o con partida finalizada.";
                 return View("Continuar");
             }
-            HttpContext.Session.SetString("usuario", usuario);
+            HttpContext.Session.SetString("Usuario", usuario);
+            HttpContext.Session.SetString("Intentos", "8");
+            HttpContext.Session.SetString("Completados", "0");
             return RedirectToAction("NivelActual");
         }
         if (bd.BuscarUsuario(usuario))
@@ -62,8 +64,10 @@ public class HomeController : Controller
             ViewBag.Mensaje = "Usuario ya existente.";
             return View("Juego");
         }
-        HttpContext.Session.SetString("usuario", usuario);
-        return RedirectToAction("NivelActual");
+        HttpContext.Session.SetString("Usuario", usuario);
+        HttpContext.Session.SetString("Intentos", "8");
+        HttpContext.Session.SetString("Completados", "0");
+        return RedirectToAction("Nivel1");
     }
 
     public IActionResult NivelActual()
@@ -73,21 +77,67 @@ public class HomeController : Controller
         int nivel = bd.ObtenerNivel(usuario);
         return RedirectToAction($"Nivel{nivel}");
     }
-
+    public IActionResult Tienda()
+    {
+        BD bd = new BD();
+        ViewBag.Plata = bd.ObtenerPlata(HttpContext.Session.GetString("Usuario"));
+        ViewBag.Comodin = bd.ObtenerComodin(HttpContext.Session.GetString("Usuario"));
+        return View();
+    }
+    public IActionResult PasarDeNivel()
+    {
+        BD bd = new BD();
+        string usuario = HttpContext.Session.GetString("Usuario");
+        bd.CambiarNivel(usuario);
+        int nivel = bd.ObtenerNivel(usuario);
+        return RedirectToAction($"Nivel{nivel}");
+    }
     public IActionResult Nivel1()
     {
+        if(HttpContext.Session.GetInt32("Completados") >= 3)
+        {
+            BD bd = new BD();
+            bd.cambiarPlata(HttpContext.Session.GetString("Usuario"), int.Parse(HttpContext.Session.GetString("Intentos")));
+            HttpContext.Session.SetString("Intentos", "8");
+            HttpContext.Session.SetString("Completados", "0");
+            return RedirectToAction("Tienda");
+        }
         return View();
     }
     public IActionResult Nivel2()
     {
+        if(HttpContext.Session.GetInt32("Completados") >= 3)
+        {
+            BD bd = new BD();
+            bd.cambiarPlata(HttpContext.Session.GetString("Usuario"), int.Parse(HttpContext.Session.GetString("Intentos")));
+            HttpContext.Session.SetString("Intentos", "8");
+            HttpContext.Session.SetString("Completados", "0");
+            return RedirectToAction("Tienda");
+        }
         return View();
     }
     public IActionResult Nivel3()
     {
+        if(HttpContext.Session.GetInt32("Completados") >= 3)
+        {
+            BD bd = new BD();
+            bd.cambiarPlata(HttpContext.Session.GetString("Usuario"), int.Parse(HttpContext.Session.GetString("Intentos")));
+            HttpContext.Session.SetString("Intentos", "8");
+            HttpContext.Session.SetString("Completados", "0");
+            return RedirectToAction("Tienda");
+        }
         return View();
     }
     public IActionResult Nivel4()
     {
+        if(HttpContext.Session.GetInt32("Completados") >= 3)
+        {
+            BD bd = new BD();
+            bd.cambiarPlata(HttpContext.Session.GetString("Usuario"), int.Parse(HttpContext.Session.GetString("Intentos")));
+            HttpContext.Session.SetString("Intentos", "8");
+            HttpContext.Session.SetString("Completados", "0");
+            return RedirectToAction("Tienda");
+        }
         return View();
     }
     public IActionResult Nivel5()
