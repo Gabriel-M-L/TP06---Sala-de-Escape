@@ -1,0 +1,69 @@
+@{
+    ViewData["Title"] = "Nivel 1";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h1>🔐 Nivel 1</h1>
+            <hr />
+
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5>📝 Desafío</h5>
+                </div>
+                <div class="card-body">
+                    <p class="lead">@ViewBag.Nivel.Desafio</p>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="alert alert-warning">
+                        <strong>⏱️ Intentos Restantes:</strong> @HttpContext.Session.GetString("Intentos")
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="alert alert-info">
+                        <strong>✅ Desafíos Completados:</strong> @HttpContext.Session.GetString("Completados")/3
+                    </div>
+                </div>
+            </div>
+
+            <form method="post" action="@Url.Action("VerificarRespuesta", "Home")">
+                <div class="mb-3">
+                    <label for="respuesta" class="form-label">Tu Respuesta:</label>
+                    <input type="text" class="form-control form-control-lg" id="respuesta" name="respuesta" placeholder="Ingresa la respuesta..." required />
+                </div>
+                <button type="submit" class="btn btn-success btn-lg w-100">Enviar Respuesta</button>
+            </form>
+
+            <hr />
+
+            <div class="card mt-4 bg-light">
+                <div class="card-header bg-secondary text-white">
+                    <h6>💡 Pista</h6>
+                </div>
+                <div class="card-body">
+                    <p>@ViewBag.Nivel.Pista</p>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary">Volver al Inicio</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelector('form').addEventListener('submit', function(e) {
+            var respuesta = document.getElementById('respuesta').value.trim();
+            if (!respuesta) {
+                alert('Por favor ingresa una respuesta');
+                e.preventDefault();
+            }
+        });
+    </script>
+}
