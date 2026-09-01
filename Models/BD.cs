@@ -10,20 +10,20 @@ public class BD
         string result;
         using (SqlConnection connection = new SqlConnection(_connectionString))
         {
-            string query = "SELECT NombreUsuario FROM Usuarios WHERE NombreUsuario = @usuario AND EstadoPartida != 'Finalizada'";
-            result = connection.QueryFirstOrDefault(query, new { usuario });
+            string query = "SELECT NombreUsuario FROM Usuario WHERE NombreUsuario = @usuario AND EstadoPartida != 'Finalizada'";
+            result = connection.QueryFirstOrDefault<string>(query, new { usuario });
         }
-        return result == null;
+        return result != null;
     }
     public bool BuscarUsuario(string usuario)
     {
         string result;
         using (SqlConnection connection = new SqlConnection(_connectionString))
         {
-            string query = "SELECT NombreUsuario FROM Usuarios WHERE NombreUsuario = @usuario";
-            result = connection.QueryFirstOrDefault(query, new { usuario });
+            string query = "SELECT NombreUsuario FROM Usuario WHERE NombreUsuario = @usuario";
+            result = connection.QueryFirstOrDefault<string>(query, new { usuario });
         }
-        return result == null;
+        return result != null;
     }
     public void GuardarUsuario(string usuario)
     {
@@ -39,7 +39,7 @@ public class BD
         int nivelActual;
         using (SqlConnection connection = new SqlConnection(_connectionString))
         {
-            string query = "SELECT NivelActual FROM Usuarios WHERE NombreUsuario = @usuario";
+            string query = "SELECT NivelActual FROM Usuario WHERE NombreUsuario = @usuario";
             nivelActual = connection.QueryFirstOrDefault<int>(query, new { usuario });
         }
         return nivelActual;
@@ -49,7 +49,7 @@ public class BD
     {
         using (SqlConnection connection = new SqlConnection(_connectionString))
         {
-            string query = "UPDATE Usuarios SET NivelActual = NivelActual + 1 WHERE NombreUsuario = @usuario";
+            string query = "UPDATE Usuario SET NivelActual = NivelActual + 1 WHERE NombreUsuario = @usuario";
             connection.Execute(query, new { usuario });
         }
     }
@@ -58,7 +58,7 @@ public class BD
     {
         using (SqlConnection connection = new SqlConnection(_connectionString))
         {
-            string query = "UPDATE Usuarios SET Plata = Plata + @plata WHERE NombreUsuario = @usuario";
+            string query = "UPDATE Usuario SET Plata = Plata + @plata WHERE NombreUsuario = @usuario";
             connection.Execute(query, new { usuario, plata });
         }
     }
@@ -68,7 +68,7 @@ public class BD
         int plata;
         using (SqlConnection connection = new SqlConnection(_connectionString))
         {
-            string query = "SELECT Plata FROM Usuarios WHERE NombreUsuario = @usuario";
+            string query = "SELECT Plata FROM Usuario WHERE NombreUsuario = @usuario";
             plata = connection.QueryFirstOrDefault<int>(query, new { usuario });
         }
         return plata;
@@ -80,7 +80,7 @@ public class BD
         using (SqlConnection connection = new SqlConnection(_connectionString))
         {
             
-            string query = "SELECT c.Id, c.Descripcion, c.Nombre, c.Precio FROM Usuarios u JOIN Comodines c ON u.Comodin = c.Nombre WHERE u.NombreUsuario = @usuario";
+            string query = "SELECT c.Id, c.Descripcion, c.Nombre, c.Imagen, c.Precio FROM Usuario u JOIN Comodines c ON u.ComodinActual = c.Id WHERE u.NombreUsuario = @usuario";
             comodin = connection.QueryFirstOrDefault<Comodin>(query, new { usuario }); 
         }
         return comodin;
@@ -98,14 +98,26 @@ public class BD
         return string.Join(",", ids);
     }
 
-    public Nivel ObtenerDatosNivel(int id)
+    public Nivel ObtenerDatosNivel(int numeroNivel, int id)
     {
         Nivel nivel = new Nivel();
         using (SqlConnection connection = new SqlConnection(_connectionString))
         {
-            string query = "SELECT Desafio, Respuesta, Pista FROM Nivel WHERE Id = @id";
+            string tableName = $"Nivel{numeroNivel}";
+            string query = $"SELECT Id, Desafio, Respuesta, Pista FROM {tableName} WHERE Id = @id";
             nivel = connection.QueryFirstOrDefault<Nivel>(query, new { id });
         }
         return nivel;
+    }
+
+    public List<Comodin> ObtenerComodinAleatorio()
+    {
+        List<Comodin> comodin = new List<Comodin>();
+        using (SqlConnection connection = new SqlConnection(_connectionString))
+        {
+            string query = "SELECT TOP 2 Id, Descripcion, Nombre, Imagen, Precio FROM Comodines ORDER BY NEWID()";
+            comodin = connection.Query<Comodin>(query).ToList();
+        }
+        return comodin;
     }
 }

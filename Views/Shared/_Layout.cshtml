@@ -10,6 +10,33 @@
     <link rel="stylesheet" href="~/TP06_Martinez_Loufer.styles.css" asp-append-version="true" />
 </head>
 <body>
+@{
+    string? usuarioActual = Context.Session.GetString("Usuario");
+    string? intentosRestantes = Context.Session.GetString("Intentos");
+    string? desafiosCompletados = Context.Session.GetString("Completados");
+    int plataActual = 0;
+    Comodin? comodinActual = null;
+
+    string ImagenComodin(string? imagen)
+    {
+        return string.IsNullOrWhiteSpace(imagen)
+            ? PlaceholderComodinImagen()
+            : Url.Content($"~/images/comodines/{imagen}");
+    }
+
+    string PlaceholderComodinImagen()
+    {
+        var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='96' height='96' viewBox='0 0 96 96'><rect width='96' height='96' rx='12' fill='#f8f9fa'/><text x='48' y='53' text-anchor='middle' dominant-baseline='middle' fill='#6c757d' font-family='Arial' font-size='26'>🧩</text></svg>";
+        return $"data:image/svg+xml;charset=UTF-8,{Uri.EscapeDataString(svg)}";
+    }
+
+    if (!string.IsNullOrWhiteSpace(usuarioActual))
+    {
+        BD bd = new BD();
+        plataActual = bd.ObtenerPlata(usuarioActual);
+        comodinActual = bd.ObtenerComodin(usuarioActual);
+    }
+}
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
@@ -30,6 +57,50 @@
                 </div>
             </div>
         </nav>
+        @if (!string.IsNullOrWhiteSpace(usuarioActual))
+        {
+            <div class="container-fluid pb-3">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="alert alert-secondary mb-0 py-2 h-100">
+                            <strong>🧩 Comodín actual:</strong><br />
+                            @if (comodinActual != null)
+                            {
+                                <div class="d-flex align-items-center gap-2 mt-2">
+                                    <img src="@ImagenComodin(comodinActual.Imagen)" alt="@comodinActual.Nombre" class="comodin-mini" onerror="this.onerror=null;this.src='@PlaceholderComodinImagen()';" />
+                                    <div>
+                                        <div class="fw-semibold">@comodinActual.Nombre</div>
+                                        <small class="text-muted">@comodinActual.Descripcion</small>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <span>No tiene comodín activo.</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="alert alert-warning mb-0 py-2 h-100">
+                            <strong>⏱️ Intentos restantes:</strong><br />
+                            @(string.IsNullOrWhiteSpace(intentosRestantes) ? "0" : intentosRestantes)
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="alert alert-info mb-0 py-2 h-100">
+                            <strong>✅ Desafíos completados:</strong><br />
+                            @(string.IsNullOrWhiteSpace(desafiosCompletados) ? "0" : desafiosCompletados)/3
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="alert alert-success mb-0 py-2 h-100">
+                            <strong>💰 Plata:</strong><br />
+                            @plataActual
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
     </header>
     <div class="container">
         <main role="main" class="pb-3">

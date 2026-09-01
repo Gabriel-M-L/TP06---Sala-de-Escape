@@ -1,0 +1,37 @@
+@{
+    ViewData["Title"] = "Tienda";
+}
+
+<h2>Tienda</h2>
+<p>Plata disponible: @ViewBag.Plata</p>
+
+@functions {
+    string ImagenComodin(string? imagen)
+    {
+        return string.IsNullOrWhiteSpace(imagen)
+            ? PlaceholderComodinImagen()
+            : Url.Content($"~/images/comodines/{imagen}");
+    }
+
+    string PlaceholderComodinImagen()
+    {
+        var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='900' height='220' viewBox='0 0 900 220'><rect width='900' height='220' fill='#e9ecef'/><text x='450' y='115' text-anchor='middle' dominant-baseline='middle' fill='#6c757d' font-family='Arial' font-size='28'>Comodín</text></svg>";
+        return $"data:image/svg+xml;charset=UTF-8,{Uri.EscapeDataString(svg)}";
+    }
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-3">
+            @foreach (Comodin comodin in ViewBag.Comodines)
+            {
+                <img src="@ImagenComodin(comodin.Imagen)" class="card-img-top comodin-img" alt="@comodin.Nombre" onerror="this.onerror=null;this.src='@PlaceholderComodinImagen()';" />
+                <div class="card-body">
+                    <h5 class="card-title">@comodin.Nombre</h5>
+                    <p class="card-text">Descripción: @comodin.Descripcion</p>
+                    <p class="card-text">Precio: @comodin.Precio</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>

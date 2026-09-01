@@ -12,25 +12,17 @@
                 <div class="card-header bg-primary text-white">
                     <h5>📝 Desafío</h5>
                 </div>
+                <div>
+                    <img src="OddToddler.jpg" alt="OddTodd" class="img-fluid"/>
+                    <p>Un simbolo debería ocupar el lugar vacío. Descubrí el patrón y elegí la opción correcta.</p>
+                </div>
                 <div class="card-body">
                     <p class="lead">@ViewBag.Nivel.Desafio</p>
                 </div>
             </div>
 
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <div class="alert alert-warning">
-                        <strong>⏱️ Intentos Restantes:</strong> @HttpContext.Session.GetString("Intentos")
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="alert alert-info">
-                        <strong>✅ Desafíos Completados:</strong> @HttpContext.Session.GetString("Completados")/3
-                    </div>
-                </div>
-            </div>
-
             <form method="post" action="@Url.Action("VerificarRespuesta", "Home")">
+                <input type="hidden" name="id" value="@ViewBag.Nivel.Id" />
                 <div class="mb-3">
                     <label for="respuesta" class="form-label">Tu Respuesta:</label>
                     <input type="text" class="form-control form-control-lg" id="respuesta" name="respuesta" placeholder="Ingresa la respuesta..." required />

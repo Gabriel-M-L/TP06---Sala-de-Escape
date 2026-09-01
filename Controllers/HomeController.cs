@@ -68,14 +68,16 @@ public class HomeController : Controller
         HttpContext.Session.SetString("Intentos", "8");
         HttpContext.Session.SetString("Completados", "0");
         bd.GuardarUsuario(usuario);
-        return RedirectToAction("Nivel1");
+        return RedirectToAction("NivelActual");
     }
 
     public IActionResult NivelActual()
     {
         BD bd = new BD();
-        string usuario = HttpContext.Session.GetString("usuario");
+        string usuario = HttpContext.Session.GetString("Usuario");
         int nivel = bd.ObtenerNivel(usuario);
+        string idsNiveles = bd.ObtenerIdsNivelesAleatorios(nivel);
+        HttpContext.Session.SetString("IdsNivel", idsNiveles);
         return RedirectToAction($"Nivel{nivel}");
     }
     public IActionResult Tienda()
@@ -83,6 +85,8 @@ public class HomeController : Controller
         BD bd = new BD();
         ViewBag.Plata = bd.ObtenerPlata(HttpContext.Session.GetString("Usuario"));
         ViewBag.Comodin = bd.ObtenerComodin(HttpContext.Session.GetString("Usuario"));
+
+        ViewBag.Comodines = bd.ObtenerComodinAleatorio();
         return View();
     }
     public IActionResult PasarDeNivel()
@@ -90,14 +94,15 @@ public class HomeController : Controller
         BD bd = new BD();
         string usuario = HttpContext.Session.GetString("Usuario");
         bd.CambiarNivel(usuario);
-        int nivel = bd.ObtenerNivel(usuario);
-        string idsNiveles = bd.ObtenerIdsNivelesAleatorios(nivel);
-        HttpContext.Session.SetString("IdsNivel", idsNiveles);
-        return RedirectToAction($"Nivel{nivel}");
+        return RedirectToAction($"NivelActual");
     }
     public IActionResult Nivel1()
     {
         BD bd = new BD();
+        if (bd.ObtenerNivel(HttpContext.Session.GetString("Usuario")) != 1)
+        {
+            return RedirectToAction("NivelActual");
+        }
         if(int. Parse(HttpContext.Session.GetString("Intentos")) <= 0)
         {
             bd.cambiarPlata(HttpContext.Session.GetString("Usuario"), 0);
@@ -105,7 +110,7 @@ public class HomeController : Controller
             HttpContext.Session.SetString("Completados", "0");
             return RedirectToAction("NivelActual");
         }
-        ViewBag.Nivel = bd.ObtenerDatosNivel(int.Parse(HttpContext.Session.GetString("IdsNivel").Split(',')[int.Parse(HttpContext.Session.GetString("Intentos")) - 1]));
+        ViewBag.Nivel = bd.ObtenerDatosNivel(1, int.Parse(HttpContext.Session.GetString("IdsNivel").Split(',')[int.Parse(HttpContext.Session.GetString("Intentos")) - 1]));
         if(int.Parse(HttpContext.Session.GetString("Completados")) >= 3)
         {
             bd.cambiarPlata(HttpContext.Session.GetString("Usuario"), int.Parse(HttpContext.Session.GetString("Intentos")));
@@ -118,6 +123,10 @@ public class HomeController : Controller
     public IActionResult Nivel2()
     {
         BD bd = new BD();
+        if (bd.ObtenerNivel(HttpContext.Session.GetString("Usuario")) != 2)
+        {
+            return RedirectToAction("NivelActual");
+        }
         if(int. Parse(HttpContext.Session.GetString("Intentos")) <= 0)
         {
             bd.cambiarPlata(HttpContext.Session.GetString("Usuario"), 0);
@@ -125,7 +134,7 @@ public class HomeController : Controller
             HttpContext.Session.SetString("Completados", "0");
             return RedirectToAction("NivelActual");
         }
-        ViewBag.Nivel = bd.ObtenerDatosNivel(int.Parse(HttpContext.Session.GetString("IdsNivel").Split(',')[int.Parse(HttpContext.Session.GetString("Intentos")) - 1]));
+        ViewBag.Nivel = bd.ObtenerDatosNivel(2, int.Parse(HttpContext.Session.GetString("IdsNivel").Split(',')[int.Parse(HttpContext.Session.GetString("Intentos")) - 1]));
         if(int.Parse(HttpContext.Session.GetString("Completados")) >= 3)
         {
             bd.cambiarPlata(HttpContext.Session.GetString("Usuario"), int.Parse(HttpContext.Session.GetString("Intentos")));
@@ -138,6 +147,10 @@ public class HomeController : Controller
     public IActionResult Nivel3()
     {
         BD bd = new BD();
+        if (bd.ObtenerNivel(HttpContext.Session.GetString("Usuario")) != 3)
+        {
+            return RedirectToAction("NivelActual");
+        }
         if(int. Parse(HttpContext.Session.GetString("Intentos")) <= 0)
         {
             bd.cambiarPlata(HttpContext.Session.GetString("Usuario"), 0);
@@ -145,7 +158,7 @@ public class HomeController : Controller
             HttpContext.Session.SetString("Completados", "0");
             return RedirectToAction("NivelActual");
         }
-        ViewBag.Nivel = bd.ObtenerDatosNivel(int.Parse(HttpContext.Session.GetString("IdsNivel").Split(',')[int.Parse(HttpContext.Session.GetString("Intentos")) - 1]));
+        ViewBag.Nivel = bd.ObtenerDatosNivel(3, int.Parse(HttpContext.Session.GetString("IdsNivel").Split(',')[int.Parse(HttpContext.Session.GetString("Intentos")) - 1]));
         if(int.Parse(HttpContext.Session.GetString("Completados")) >= 3)
         {
             bd.cambiarPlata(HttpContext.Session.GetString("Usuario"), int.Parse(HttpContext.Session.GetString("Intentos")));
@@ -158,6 +171,10 @@ public class HomeController : Controller
     public IActionResult Nivel4()
     {
         BD bd = new BD();
+        if (bd.ObtenerNivel(HttpContext.Session.GetString("Usuario")) != 4)
+        {
+            return RedirectToAction("NivelActual");
+        }
         if(int. Parse(HttpContext.Session.GetString("Intentos")) <= 0)
         {
             bd.cambiarPlata(HttpContext.Session.GetString("Usuario"), 0);
@@ -177,6 +194,22 @@ public class HomeController : Controller
     public IActionResult Nivel5()
     {
         return View();
+    }
+
+    [HttpPost]
+    public IActionResult VerificarRespuesta(string respuesta, int id)
+    {
+        BD bd = new BD();
+        int nivel = bd.ObtenerNivel(HttpContext.Session.GetString("Usuario"));
+        Nivel datosNivel = bd.ObtenerDatosNivel(nivel, id);
+        if (respuesta == datosNivel.Respuesta)
+        {
+            int completados = int.Parse(HttpContext.Session.GetString("Completados")) + 1;
+            HttpContext.Session.SetString("Completados", completados.ToString());
+        }
+        int intentos = int.Parse(HttpContext.Session.GetString("Intentos")) - 1;
+        HttpContext.Session.SetString("Intentos", intentos.ToString());
+        return RedirectToAction($"Nivel{nivel}");
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
