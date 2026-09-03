@@ -120,4 +120,35 @@ public class BD
         }
         return comodin;
     }
+
+    public void CambiarComodin(string usuario, int idComodin)
+    {
+        using (SqlConnection connection = new SqlConnection(_connectionString))
+        {
+            string query = "UPDATE Usuario SET ComodinActual = @idComodin WHERE NombreUsuario = @usuario";
+            connection.Execute(query, new { usuario, idComodin });
+        }
+    }
+
+    public Comodin ObtenerComodinPorId(int id)
+    {
+        Comodin comodin = new Comodin();
+        using (SqlConnection connection = new SqlConnection(_connectionString))
+        {
+            string query = "SELECT Id, Descripcion, Nombre, Imagen, Precio FROM Comodines WHERE Id = @id";
+            comodin = connection.QueryFirstOrDefault<Comodin>(query, new { id });
+        }
+        return comodin;
+    }
+
+    public string ObtenerPregunta(int id)
+    {
+        string pregunta;
+        using (SqlConnection connection = new SqlConnection(_connectionString))
+        {
+            string query = "SELECT Pregunta FROM Preguntas WHERE Id = @id";
+            pregunta = connection.QueryFirstOrDefault<string>(query, new { id });
+        }
+        return pregunta;
+    }
 }
