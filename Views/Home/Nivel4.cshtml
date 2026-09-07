@@ -27,13 +27,19 @@
             </form>
 
             <hr />
-
-            <div class="card mt-4 bg-light">
-                <div class="card-header bg-secondary text-white">
-                    <h6>💡 Pista Definitiva</h6>
-                </div>
-                <div class="card-body">
-                    <p>@ViewBag.Nivel.Pista</p>
+            <div class="mt-4">
+                <button class="btn btn-outline-secondary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#pistaNivel4" aria-expanded="false" aria-controls="pistaNivel4">
+                    💡 Mostrar pista definitiva
+                </button>
+                <div class="collapse mt-3" id="pistaNivel4">
+                    <div class="card bg-light">
+                        <div class="card-header bg-secondary text-white">
+                            <h6 class="mb-0">💡 Pista Definitiva</h6>
+                        </div>
+                        <div class="card-body">
+                            <p>@ViewBag.Nivel.Pista</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 

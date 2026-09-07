@@ -6,14 +6,14 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <h1>🔐 Nivel 1</h1>
-            <hr />
+            <hr/>
 
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
                     <h5>📝 Desafío</h5>
                 </div>
                 <div>
-                    <img src="OddToddler.jpg" alt="OddTodd" class="img-fluid"/>
+                    <img src="OddTodd.png" alt="OddTodd" class="img-fluid"/>
                     <p>Un simbolo debería ocupar el lugar vacío. Descubrí el patrón y elegí la opción correcta.</p>
                 </div>
                 <div class="card-body">
@@ -21,7 +21,7 @@
                 </div>
             </div>
 
-            <form method="post" action="@Url.Action("VerificarRespuesta", "Home")">
+            <form action="@Url.Action("VerificarRespuesta", "Home")" method="post">
                 <input type="hidden" name="id" value="@ViewBag.Nivel.Id" />
                 <div class="mb-3">
                     <label for="respuesta" class="form-label">Tu Respuesta:</label>
@@ -32,12 +32,19 @@
 
             <hr />
 
-            <div class="card mt-4 bg-light">
-                <div class="card-header bg-secondary text-white">
-                    <h6>💡 Pista</h6>
-                </div>
-                <div class="card-body">
-                    <p>@ViewBag.Nivel.Pista</p>
+            <div class="mt-4">
+                <button class="btn btn-outline-secondary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#pistaNivel1" aria-expanded="false" aria-controls="pistaNivel1">
+                    💡 Mostrar pista
+                </button>
+                <div class="collapse mt-3" id="pistaNivel1">
+                    <div class="card bg-light">
+                        <div class="card-header bg-secondary text-white">
+                            <h6 class="mb-0">💡 Pista</h6>
+                        </div>
+                        <div class="card-body">
+                            <p>@ViewBag.Nivel.Pista</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 

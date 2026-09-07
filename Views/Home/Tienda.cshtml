@@ -30,8 +30,13 @@
                     <h5 class="card-title">@comodin.Nombre</h5>
                     <p class="card-text">Descripción: @comodin.Descripcion</p>
                     <p class="card-text">Precio: @comodin.Precio</p>
+                    <a href="@Url.Action("ComprarComodin", "Home", new { id = comodin.Id })" class="btn btn-primary">Comprar comodín</a>
                 </div>
             }
+        </div>
+
+        <div class="mt-3">
+            <a href="@Url.Action("PasarDeNivel", "Home")" class="btn btn-success">Pasar de nivel</a>
         </div>
     </div>
 </div>

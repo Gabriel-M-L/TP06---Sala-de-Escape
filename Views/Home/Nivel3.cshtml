@@ -28,12 +28,19 @@
 
             <hr />
 
-            <div class="card mt-4 bg-light">
-                <div class="card-header bg-secondary text-white">
-                    <h6>💡 Pista</h6>
-                </div>
-                <div class="card-body">
-                    <p>@ViewBag.Nivel.Pista</p>
+            <div class="mt-4">
+                <button class="btn btn-outline-secondary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#pistaNivel3" aria-expanded="false" aria-controls="pistaNivel3">
+                    💡 Mostrar pista
+                </button>
+                <div class="collapse mt-3" id="pistaNivel3">
+                    <div class="card bg-light">
+                        <div class="card-header bg-secondary text-white">
+                            <h6 class="mb-0">💡 Pista</h6>
+                        </div>
+                        <div class="card-body">
+                            <p>@ViewBag.Nivel.Pista</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
