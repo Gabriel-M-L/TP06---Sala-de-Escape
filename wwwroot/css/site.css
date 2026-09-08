@@ -283,7 +283,7 @@ body > main {
   padding: 0.25rem 0.55rem;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.05);
-  font-size: 0.72rem;
+  font-size: 1.5rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -554,6 +554,55 @@ small,
 .level-prompt {
   font-size: 1.1rem;
   line-height: 1.7;
+}
+
+/* New styles for consigna-html */
+
+.consigna-html {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.25rem 0;
+  font-size: 1.06rem;
+  line-height: 1.7;
+}
+
+.consigna-html .escape-badge {
+  align-self: flex-start;
+}
+
+.consigna-html .text-muted {
+  color: var(--ante-muted) !important;
+}
+
+.consigna-html .fs-3,
+.consigna-html .fs-5 {
+  line-height: 1.35;
+}
+
+.consigna-html .tag-suit {
+  width: fit-content;
+}
+
+.consigna-html .suit-hearts,
+.consigna-html .suit-clubs,
+.consigna-html .suit-diamonds,
+.consigna-html .suit-spades {
+  font-weight: 700;
+}
+
+.consigna-html ol,
+.consigna-html ul {
+  margin: 0.4rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.consigna-html li + li {
+  margin-top: 0.35rem;
+}
+
+.consigna-html p {
+  margin-bottom: 0;
 }
 
 .level-hint-shell .card-header {

@@ -169,10 +169,10 @@ public class HomeController : Controller
         }
         if(int. Parse(HttpContext.Session.GetString("Intentos")) <= 0)
         {
-            // cuando se quedan sin intentos, mostrar la vista que permite revivir pagando
+
             return RedirectToAction("SinIntentos");
         }
-        ViewBag.Nivel = bd.ObtenerDatosNivel(1, int.Parse(HttpContext.Session.GetString("IdsNivel").Split(',')[int.Parse(HttpContext.Session.GetString("Intentos")) - 1]));
+        ViewBag.Nivel = bd.ObtenerDatosNivel(1, int.Parse(HttpContext.Session.GetString("IdsNivel").Split(',', StringSplitOptions.RemoveEmptyEntries)[int.Parse(HttpContext.Session.GetString("Intentos")) - 1]));
         if(int.Parse(HttpContext.Session.GetString("Completados")) >= 3)
         {
             bd.cambiarPlata(HttpContext.Session.GetString("Usuario"), int.Parse(HttpContext.Session.GetString("Intentos")));
@@ -183,37 +183,16 @@ public class HomeController : Controller
         return View();
     }
 
-    private string ObtenerImagenJimbo()
-    {
-        try
-        {
-            var last = HttpContext.Session.GetString("LastJimbo");
-            var dir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "imagenes", "comodin");
-            if (!Directory.Exists(dir)) return "/imagenes/comodin/Jimbo.webp";
-            var files = Directory.GetFiles(dir).Select(Path.GetFileName).Where(n => !string.IsNullOrEmpty(n)).ToList();
-            if (files.Count == 0) return "/imagenes/comodin/Jimbo.webp";
-            var rnd = new Random();
-            var candidates = files.Where(f => !f.Equals(last, StringComparison.OrdinalIgnoreCase)).ToList();
-            string choice = candidates.Count > 0 ? candidates[rnd.Next(candidates.Count)] : files[rnd.Next(files.Count)];
-            HttpContext.Session.SetString("LastJimbo", choice);
-            return "/imagenes/comodin/" + choice;
-        }
-        catch
-        {
-            return "/imagenes/comodin/Jimbo.webp";
-        }
-    }
+
 
     public IActionResult IntroNivel1()
     {
-        ViewBag.JimboImg = ObtenerImagenJimbo();
         return View();
     }
 
     public IActionResult SinIntentos()
     {
         BD bd = new BD();
-        ViewBag.JimboImg = ObtenerImagenJimbo();
         string usuario = HttpContext.Session.GetString("Usuario");
         ViewBag.Plata = bd.ObtenerPlata(usuario);
         return View();
@@ -238,7 +217,6 @@ public class HomeController : Controller
 
     public IActionResult Victoria()
     {
-        ViewBag.JimboImg = ObtenerImagenJimbo();
         return View();
     }
     public IActionResult Nivel2()
@@ -251,10 +229,8 @@ public class HomeController : Controller
         }
         if(int. Parse(HttpContext.Session.GetString("Intentos")) <= 0)
         {
-            bd.cambiarPlata(HttpContext.Session.GetString("Usuario"), 0);
-            HttpContext.Session.SetString("Intentos", "8");
-            HttpContext.Session.SetString("Completados", "0");
-            return RedirectToAction("NivelActual");
+
+            return RedirectToAction("SinIntentos");
         }
         ViewBag.Nivel = bd.ObtenerDatosNivel(2, int.Parse(HttpContext.Session.GetString("IdsNivel").Split(',')[int.Parse(HttpContext.Session.GetString("Intentos")) - 1]));
         if(int.Parse(HttpContext.Session.GetString("Completados")) >= 3)
@@ -276,10 +252,8 @@ public class HomeController : Controller
         }
         if(int. Parse(HttpContext.Session.GetString("Intentos")) <= 0)
         {
-            bd.cambiarPlata(HttpContext.Session.GetString("Usuario"), 0);
-            HttpContext.Session.SetString("Intentos", "8");
-            HttpContext.Session.SetString("Completados", "0");
-            return RedirectToAction("NivelActual");
+
+            return RedirectToAction("SinIntentos");
         }
         
         if(int.Parse(HttpContext.Session.GetString("Completados")) >= 3)
@@ -296,6 +270,7 @@ public class HomeController : Controller
     {
         Random random = new Random(); 
         BD bd = new BD();
+        Nivel nivel = new Nivel();
         ViewBag.Pistas = ObtenerPistasDisponibles();
         if (bd.ObtenerNivel(HttpContext.Session.GetString("Usuario")) != 4)
         {
@@ -315,13 +290,10 @@ public class HomeController : Controller
             HttpContext.Session.SetString("Completados", "0");
             return RedirectToAction("Tienda");
         }
-        ViewBag.Nivel = ConstruirNivel4(int.Parse(HttpContext.Session.GetString("IdsNivel").Split(',')[random.Next(0, 3)]));
+        ViewBag.Nivel = nivel.ConstruirNivel4(int.Parse(HttpContext.Session.GetString("IdsNivel").Split(',', StringSplitOptions.RemoveEmptyEntries)[random.Next(0, 3)]));
         return View();
     }
-    public IActionResult Nivel5()
-    {
-        return View();
-    }
+
 
     [HttpPost]
     public IActionResult VerificarRespuesta(string respuesta, int id)
@@ -382,75 +354,7 @@ public class HomeController : Controller
         HttpContext.Session.SetString("Pistas", pistasDisponibles.ToString());
         return Json(new { success = true, remaining = pistasDisponibles });
     }
-
-    public Nivel ConstruirNivel4(int id)
-    {
-        BD bd = new BD();
-        string pregunta = "";
-        string consigna = "";
-        string respuesta = "";
-        string pista = "";
-        List<Carta> cartas = new List<Carta>();
-        string imagesHtml = "";
-        Random random = new Random();
-        switch (id)
-        {
-            case 1:
-                pregunta = bd.ObtenerPregunta(1);
-                cartas = GenerarCarta(5);
-                imagesHtml = "<div style=\"display:flex;gap:8px;align-items:center;\">"
-                    + string.Join("", cartas.Select(c => $"<img src=\"images/{c.Imagen}\" alt=\"{c.Palo} {c.Numero}\" style=\"height:100px;\">"))
-                    + "</div>";
-                consigna = pregunta + " " + imagesHtml;
-                respuesta = cartas[1].Palo + cartas[1].Numero;
-                pista = "la carta que necesitas es la segunda de la lista";
-                break;
-            case 2:
-                pregunta = bd.ObtenerPregunta(2);
-                cartas = GenerarCarta(5);
-                imagesHtml = "<div style=\"display:flex;gap:8px;align-items:center;\">"
-                    + string.Join("", cartas.Select(c => $"<img src=\"images/{c.Imagen}\" alt=\"{c.Palo} {c.Numero}\" style=\"height:100px;\">"))
-                    + "</div>";
-                consigna = pregunta + " " + imagesHtml;
-                respuesta = cartas[2].Palo + cartas[2].Numero;
-                pista = $"la carta que necesitas es de {cartas[2].Palo}";
-                break;
-            case 3:
-                int ran = random.Next(0, 5);
-                pregunta = bd.ObtenerPregunta(3);
-                cartas = GenerarCarta(5);
-                imagesHtml = "<div style=\"display:flex;gap:8px;align-items:center;\">"
-                    + string.Join("", cartas.Select(c => $"<img src=\"images/{c.Imagen}\" alt=\"{c.Palo} {c.Numero}\" style=\"height:100px;\">"))
-                    + "</div>";
-                consigna = "Qué carta estaba en la posición " + (ran + 1) + " " + imagesHtml;
-                respuesta = cartas[ran].Palo + cartas[ran].Numero;
-                pista = $"la carta que necesitas es de {cartas[ran].Numero}";
-                break;
-            case 4:
-                pregunta = bd.ObtenerPregunta(4);
-                break;
-        }
-        
-        return new Nivel { Desafio = consigna, Respuesta = respuesta, Pista = pista };
-    }
-
-    public List<Carta> GenerarCarta(int cantidad)
-    {
-        List<Carta> cartas = new List<Carta>();
-        Random random = new Random();
-        string[] palos = { "Corazones", "Diamantes", "Tréboles", "Picas" };
-        string[] numeros = { "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K" };
-
-        for (int i = 0; i < cantidad; i++)
-        {
-            string palo = palos[random.Next(palos.Length)];
-            string numero = numeros[random.Next(numeros.Length)];
-            string imagen = $"{palo}_{numero}.png"; 
-            cartas.Add(new Carta { Palo = palo, Numero = numero, Imagen = imagen });
-        }
-
-        return cartas;
-    }
+    
     public IActionResult CerrarSesion()
     {
         HttpContext.Session.Clear();

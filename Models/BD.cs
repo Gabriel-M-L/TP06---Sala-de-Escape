@@ -49,7 +49,7 @@ public class BD
     {
         using (SqlConnection connection = new SqlConnection(_connectionString))
         {
-            string query = "UPDATE Usuario SET NivelActual = NivelActual + 1 WHERE NombreUsuario = @usuario";
+            string query = "UPDATE Usuario SET NivelActual = NivelActual + 1 WHERE NombreUsuario = @usuario AND NivelActual < 4";
             connection.Execute(query, new { usuario });
         }
     }
