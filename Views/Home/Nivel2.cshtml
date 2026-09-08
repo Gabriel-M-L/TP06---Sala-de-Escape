@@ -2,23 +2,29 @@
     ViewData["Title"] = "Nivel 2";
 }
 
-<div class="container mt-5">
+<div class="container level-shell">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <h1>🔐🔐 Nivel 2</h1>
-            <hr />
+        <div class="col-lg-9">
+            <div class="level-banner crt-frame">
+                <img src="/imagenes/comodin/Even_Steven.webp" alt="">
+                <div>
+                    <span class="escape-badge pixel-label">Consigna de sala</span>
+                    <h2 class="mt-3 mb-2">Lectura del casino</h2>
+                    <p class="text-muted">El tablero mostró una anomalía. Interpretá la consigna y respondé antes de que cierre la mesa.</p>
+                </div>
+            </div>
 
-            <div class="card mb-4">
-                <div class="card-header bg-warning text-dark">
-                    <h5>📝 Desafío</h5>
+            <div class="card mb-4 level-card crt-frame">
+                <div class="card-header">
+                    <h5 class="mb-0">📝 Desafío</h5>
                 </div>
                 <div class="card-body">
-                    <p class="lead">@ViewBag.Nivel.Desafio</p>
+                    <p class="lead level-prompt scanline-text">@Html.Raw(ViewBag.Nivel.Desafio)</p>
                 </div>
             </div>
 
             <form method="post" action="@Url.Action("VerificarRespuesta", "Home")">
-                <input type="hidden" name="id" value="ViewBag.Nivel.Id" />
+                <input type="hidden" name="id" value="@ViewBag.Nivel.Id" />
                 <div class="mb-3">
                     <label for="respuesta" class="form-label">Tu Respuesta:</label>
                     <input type="text" class="form-control form-control-lg" id="respuesta" name="respuesta" placeholder="Ingresa la respuesta..." required />
@@ -29,12 +35,23 @@
             <hr />
 
             <div class="mt-4">
-                <button class="btn btn-outline-secondary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#pistaNivel2" aria-expanded="false" aria-controls="pistaNivel2">
-                    💡 Mostrar pista
-                </button>
+                @if (ViewBag.Pistas > 0)
+                {
+                    <button class="btn btn-outline-light w-100" type="button" onclick="mostrarPista('pistaNivel2', this)">
+                        💡 Mostrar pista
+                    </button>
+                }
+                else
+                {
+                    <button class="btn btn-outline-light w-100" type="button" disabled>
+                        💡 Mostrar pista
+                    </button>
+                    <small class="text-muted d-block mt-2">No te quedan pistas.</small>
+                }
+                <small class="text-muted d-block mt-2">Pistas disponibles: @ViewBag.Pistas</small>
                 <div class="collapse mt-3" id="pistaNivel2">
-                    <div class="card bg-light">
-                        <div class="card-header bg-secondary text-white">
+                    <div class="card level-card level-hint-shell crt-frame">
+                        <div class="card-header">
                             <h6 class="mb-0">💡 Pista</h6>
                         </div>
                         <div class="card-body">
@@ -45,7 +62,7 @@
             </div>
 
             <div class="mt-4">
-                <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary">Volver al Inicio</a>
+                <a href="@Url.Action("CerrarSesion", "Home")" class="btn btn-outline-light">Volver al Inicio</a>
             </div>
         </div>
     </div>
@@ -53,6 +70,36 @@
 
 @section Scripts {
     <script>
+        async function mostrarPista(pistaId, boton) {
+            try {
+                const response = await fetch('@Url.Action("UsarPista", "Home")', {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    alert(data.message || 'No te quedan pistas.');
+                    return;
+                }
+
+                const elemento = document.getElementById(pistaId);
+                if (elemento) {
+                    const collapse = bootstrap.Collapse.getOrCreateInstance(elemento);
+                    collapse.show();
+                }
+
+                if (boton) {
+                    boton.disabled = true;
+                    boton.textContent = data.remaining > 0
+                        ? `💡 Pista mostrada (${data.remaining} restantes)`
+                        : '💡 Pista mostrada';
+                }
+            } catch (error) {
+                alert('No se pudo mostrar la pista.');
+            }
+        }
+
         document.querySelector('form').addEventListener('submit', function(e) {
             var respuesta = document.getElementById('respuesta').value.trim();
             if (!respuesta) {

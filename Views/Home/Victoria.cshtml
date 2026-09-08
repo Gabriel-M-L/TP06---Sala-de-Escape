@@ -1,0 +1,21 @@
+@{
+    ViewData["Title"] = "Victoria";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1>¡Victoria!</h1>
+            <hr />
+            <div class="card mb-4">
+                <div class="card-body">
+                    <img src="@ViewBag.JimboImg" alt="Jimbo" class="img-fluid mb-3" style="max-height:240px;" />
+                    <p class="lead">Buen trabajo. Me entreteniste por completo — te felicito.</p>
+                    <p>Si querés, podés volver a jugar.</p>
+                </div>
+            </div>
+
+            <a href="@Url.Action("Index", "Home")" class="btn btn-primary btn-lg">Volver al inicio</a>
+        </div>
+    </div>
+</div>

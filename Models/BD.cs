@@ -151,4 +151,13 @@ public class BD
         }
         return pregunta;
     }
+
+    public void FinalizarPartida(string usuario)
+    {
+        using (SqlConnection connection = new SqlConnection(_connectionString))
+        {
+            string query = "UPDATE Usuario SET EstadoPartida = 'Finalizada' WHERE NombreUsuario = @usuario";
+            connection.Execute(query, new { usuario });
+        }
+    }
 }

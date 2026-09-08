@@ -1,0 +1,22 @@
+@{
+    ViewData["Title"] = "Preparación - Nivel 1";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1>Jimbo te habla</h1>
+            <hr />
+            <div class="card mb-4">
+                <div class="card-body">
+                    <img src="@ViewBag.JimboImg" alt="Jimbo" class="img-fluid mb-3" style="max-height:240px;" />
+                    <p class="lead">Hola, soy Jimbo. Te voy a dejar algunos acertijos para entretenerme. Tenés 8 intentos para cada nivel. Si los agotas, podés pagar para revivir... si te animás.</p>
+                    <p>¿Listo para empezar? Buena suerte.</p>
+                </div>
+            </div>
+
+            <a href="@Url.Action("NivelActual", "Home")" class="btn btn-primary btn-lg">Continuar al Nivel 1</a>
+            <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary btn-lg ms-2">Volver al inicio</a>
+        </div>
+    </div>
+</div>

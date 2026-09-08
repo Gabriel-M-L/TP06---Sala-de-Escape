@@ -39,6 +39,43 @@ public class HomeController : Controller
         return View();
     }
 
+    private int ObtenerPistasDisponibles()
+    {
+        string? pistas = HttpContext.Session.GetString("Pistas");
+        return int.TryParse(pistas, out int cantidad) ? cantidad : 0;
+    }
+
+    private void AgregarPistas(int cantidad)
+    {
+        if (cantidad <= 0)
+        {
+            return;
+        }
+
+        int pistasActuales = ObtenerPistasDisponibles();
+        HttpContext.Session.SetString("Pistas", (pistasActuales + cantidad).ToString());
+    }
+
+    private int CalcularPistasGanadas(Comodin comodin)
+    {
+        if (comodin == null || string.IsNullOrWhiteSpace(comodin.Descripcion))
+        {
+            return 0;
+        }
+
+        if (comodin.Descripcion.Contains("2 pistas", StringComparison.OrdinalIgnoreCase))
+        {
+            return 2;
+        }
+
+        if (comodin.Descripcion.Contains("pista", StringComparison.OrdinalIgnoreCase))
+        {
+            return 1;
+        }
+
+        return 0;
+    }
+
     public IActionResult Continuar()
     {
         return View();
@@ -48,6 +85,7 @@ public class HomeController : Controller
     public IActionResult Jugar(string usuario, bool continuar)
     {
         BD bd = new BD();
+        HttpContext.Session.SetString("Pistas", "0");
         if (continuar)
         {
             if(!bd.RecuperarUsuario(usuario))
@@ -69,7 +107,7 @@ public class HomeController : Controller
         HttpContext.Session.SetString("Intentos", "8");
         HttpContext.Session.SetString("Completados", "0");
         bd.GuardarUsuario(usuario);
-        return RedirectToAction("NivelActual");
+        return RedirectToAction("IntroNivel1");
     }
 
     public IActionResult NivelActual()
@@ -83,14 +121,35 @@ public class HomeController : Controller
         {
             return RedirectToAction("ConstruirNivel4");
         }
+
         return RedirectToAction($"Nivel{nivel}");
     }
-    public IActionResult Tienda()
+    public IActionResult Tienda(string mensaje)
     {
         BD bd = new BD();
-        ViewBag.Plata = bd.ObtenerPlata(HttpContext.Session.GetString("Usuario"));
-        ViewBag.Comodin = bd.ObtenerComodin(HttpContext.Session.GetString("Usuario"));
-        ViewBag.Comodines = bd.ObtenerComodinAleatorio();
+        string usuario = HttpContext.Session.GetString("Usuario");
+        ViewBag.Plata = bd.ObtenerPlata(usuario);
+        ViewBag.Comodin = bd.ObtenerComodin(usuario);
+
+        // Mantener la misma lista de comodines mientras el usuario está en la tienda
+        string sessionComodines = HttpContext.Session.GetString("TiendaComodines");
+        if (string.IsNullOrEmpty(sessionComodines))
+        {
+            var comodines = bd.ObtenerComodinAleatorio();
+            ViewBag.Comodines = comodines;
+            HttpContext.Session.SetString("TiendaComodines", string.Join(",", comodines.Select(c => c.Id)));
+        }
+        else
+        {
+            var ids = sessionComodines.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            var lista = new List<Comodin>();
+            foreach (var s in ids)
+            {
+                if (int.TryParse(s, out int cid)) lista.Add(bd.ObtenerComodinPorId(cid));
+            }
+            ViewBag.Comodines = lista;
+        }
+        ViewBag.Mensaje = mensaje;
         return View();
     }
     public IActionResult PasarDeNivel()
@@ -103,16 +162,15 @@ public class HomeController : Controller
     public IActionResult Nivel1()
     {
         BD bd = new BD();
+        ViewBag.Pistas = ObtenerPistasDisponibles();
         if (bd.ObtenerNivel(HttpContext.Session.GetString("Usuario")) != 1)
         {
             return RedirectToAction("NivelActual");
         }
         if(int. Parse(HttpContext.Session.GetString("Intentos")) <= 0)
         {
-            bd.cambiarPlata(HttpContext.Session.GetString("Usuario"), 0);
-            HttpContext.Session.SetString("Intentos", "8");
-            HttpContext.Session.SetString("Completados", "0");
-            return RedirectToAction("NivelActual");
+            // cuando se quedan sin intentos, mostrar la vista que permite revivir pagando
+            return RedirectToAction("SinIntentos");
         }
         ViewBag.Nivel = bd.ObtenerDatosNivel(1, int.Parse(HttpContext.Session.GetString("IdsNivel").Split(',')[int.Parse(HttpContext.Session.GetString("Intentos")) - 1]));
         if(int.Parse(HttpContext.Session.GetString("Completados")) >= 3)
@@ -124,9 +182,69 @@ public class HomeController : Controller
         }
         return View();
     }
+
+    private string ObtenerImagenJimbo()
+    {
+        try
+        {
+            var last = HttpContext.Session.GetString("LastJimbo");
+            var dir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "imagenes", "comodin");
+            if (!Directory.Exists(dir)) return "/imagenes/comodin/Jimbo.webp";
+            var files = Directory.GetFiles(dir).Select(Path.GetFileName).Where(n => !string.IsNullOrEmpty(n)).ToList();
+            if (files.Count == 0) return "/imagenes/comodin/Jimbo.webp";
+            var rnd = new Random();
+            var candidates = files.Where(f => !f.Equals(last, StringComparison.OrdinalIgnoreCase)).ToList();
+            string choice = candidates.Count > 0 ? candidates[rnd.Next(candidates.Count)] : files[rnd.Next(files.Count)];
+            HttpContext.Session.SetString("LastJimbo", choice);
+            return "/imagenes/comodin/" + choice;
+        }
+        catch
+        {
+            return "/imagenes/comodin/Jimbo.webp";
+        }
+    }
+
+    public IActionResult IntroNivel1()
+    {
+        ViewBag.JimboImg = ObtenerImagenJimbo();
+        return View();
+    }
+
+    public IActionResult SinIntentos()
+    {
+        BD bd = new BD();
+        ViewBag.JimboImg = ObtenerImagenJimbo();
+        string usuario = HttpContext.Session.GetString("Usuario");
+        ViewBag.Plata = bd.ObtenerPlata(usuario);
+        return View();
+    }
+
+    [HttpPost]
+    public IActionResult RevivirConfirmar()
+    {
+        BD bd = new BD();
+        string usuario = HttpContext.Session.GetString("Usuario");
+        int plata = bd.ObtenerPlata(usuario);
+        // cobrar toda la plata como cuota de revivición
+        if (plata > 0)
+        {
+            bd.cambiarPlata(usuario, -plata);
+        }
+        AgregarPistas(3);
+        HttpContext.Session.SetString("Intentos", "8");
+        HttpContext.Session.SetString("Completados", "0");
+        return RedirectToAction("Nivel1");
+    }
+
+    public IActionResult Victoria()
+    {
+        ViewBag.JimboImg = ObtenerImagenJimbo();
+        return View();
+    }
     public IActionResult Nivel2()
     {
         BD bd = new BD();
+        ViewBag.Pistas = ObtenerPistasDisponibles();
         if (bd.ObtenerNivel(HttpContext.Session.GetString("Usuario")) != 2)
         {
             return RedirectToAction("NivelActual");
@@ -151,6 +269,7 @@ public class HomeController : Controller
     public IActionResult Nivel3()
     {
         BD bd = new BD();
+        ViewBag.Pistas = ObtenerPistasDisponibles();
         if (bd.ObtenerNivel(HttpContext.Session.GetString("Usuario")) != 3)
         {
             return RedirectToAction("NivelActual");
@@ -177,6 +296,7 @@ public class HomeController : Controller
     {
         Random random = new Random(); 
         BD bd = new BD();
+        ViewBag.Pistas = ObtenerPistasDisponibles();
         if (bd.ObtenerNivel(HttpContext.Session.GetString("Usuario")) != 4)
         {
             return RedirectToAction("NivelActual");
@@ -224,18 +344,43 @@ public class HomeController : Controller
         BD bd = new BD();
         string usuario = HttpContext.Session.GetString("Usuario");
         Comodin comodin = bd.ObtenerComodinPorId(id);
+        string Nmensaje;
         int plata = bd.ObtenerPlata(usuario);
         if (plata >= comodin.Precio)
         {
             bd.cambiarPlata(usuario, -comodin.Precio);
             bd.CambiarComodin(usuario, id);
-            ViewBag.Mensaje = "Comodín comprado con éxito.";
+            int pistasGanadas = CalcularPistasGanadas(comodin);
+            if (pistasGanadas > 0)
+            {
+                AgregarPistas(pistasGanadas);
+            }
+            Nmensaje = "Comodín comprado con éxito.";
+            if (pistasGanadas > 0)
+            {
+                Nmensaje += pistasGanadas == 1 ? " Ganaste 1 pista." : $" Ganaste {pistasGanadas} pistas.";
+            }
         }
         else
         {
-            ViewBag.Mensaje = "No tenes suficiente plata para comprar este comodín.";
+            Nmensaje = "No tenes suficiente plata para comprar este comodín.";
         }
-        return RedirectToAction("Tienda");
+        // No regeneramos la lista de la tienda aquí: la acción Tienda leerá la lista desde sesión
+        return RedirectToAction("Tienda", new { mensaje = Nmensaje });
+    }
+
+    [HttpPost]
+    public IActionResult UsarPista()
+    {
+        int pistasDisponibles = ObtenerPistasDisponibles();
+        if (pistasDisponibles <= 0)
+        {
+            return Json(new { success = false, remaining = 0, message = "No te quedan pistas." });
+        }
+
+        pistasDisponibles--;
+        HttpContext.Session.SetString("Pistas", pistasDisponibles.ToString());
+        return Json(new { success = true, remaining = pistasDisponibles });
     }
 
     public Nivel ConstruirNivel4(int id)
@@ -305,6 +450,19 @@ public class HomeController : Controller
         }
 
         return cartas;
+    }
+    public IActionResult CerrarSesion()
+    {
+        HttpContext.Session.Clear();
+        return RedirectToAction("Index");
+    }
+    public IActionResult FinalizarPartida()
+    {
+        BD bd = new BD();
+        string usuario = HttpContext.Session.GetString("Usuario");
+        bd.FinalizarPartida(usuario);
+        HttpContext.Session.Clear();
+        return RedirectToAction("Index");
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

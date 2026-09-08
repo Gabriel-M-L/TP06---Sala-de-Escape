@@ -2,15 +2,12 @@
     ViewData["Title"] = "Tienda";
 }
 
-<h2>Tienda</h2>
-<p>Plata disponible: @ViewBag.Plata</p>
-
 @functions {
     string ImagenComodin(string? imagen)
     {
         return string.IsNullOrWhiteSpace(imagen)
             ? PlaceholderComodinImagen()
-            : Url.Content($"~/images/comodines/{imagen}");
+            : Url.Content($"~/imagenes/comodin/{imagen}");
     }
 
     string PlaceholderComodinImagen()
@@ -20,23 +17,34 @@
     }
 }
 
-<div class="row">
-    <div class="col-md-6">
-        <div class="card mb-3">
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card mb-3 crt-frame">
+            <div class="card-body">
+                <h2 class="card-title scanline-text">Tienda</h2>
+                <p class="card-text">Plata disponible: <strong class="suit-diamonds">@ViewBag.Plata</strong></p>
+            </div>
+        </div>
+
+        <div class="row g-3">
             @foreach (Comodin comodin in ViewBag.Comodines)
             {
-                <img src="@ImagenComodin(comodin.Imagen)" class="card-img-top comodin-img" alt="@comodin.Nombre" onerror="this.onerror=null;this.src='@PlaceholderComodinImagen()';" />
-                <div class="card-body">
-                    <h5 class="card-title">@comodin.Nombre</h5>
-                    <p class="card-text">Descripción: @comodin.Descripcion</p>
-                    <p class="card-text">Precio: @comodin.Precio</p>
-                    <a href="@Url.Action("ComprarComodin", "Home", new { id = comodin.Id })" class="btn btn-primary">Comprar comodín</a>
+                <div class="col-md-6">
+                    <div class="card crt-frame h-100">
+                        <img src="@ImagenComodin(comodin.Imagen)" class="comodin-img" alt="@comodin.Nombre" onerror="this.onerror=null;this.src='@PlaceholderComodinImagen()';" />
+                        <div class="card-body">
+                            <h5 class="card-title scanline-text">@comodin.Nombre</h5>
+                            <p class="card-text">Descripción: @comodin.Descripcion</p>
+                            <p class="card-text">Precio: @comodin.Precio</p>
+                            <a href="@Url.Action("ComprarComodin", "Home", new { id = comodin.Id })" class="btn btn-primary">Comprar comodín</a>
+                        </div>
+                    </div>
                 </div>
             }
         </div>
 
-        <div class="mt-3">
-            <a href="@Url.Action("PasarDeNivel", "Home")" class="btn btn-success">Pasar de nivel</a>
+        <div class="mt-3 text-center">
+            <a href="@Url.Action("CerrarSesion", "Home")" class="btn btn-success">Pasar de nivel</a>
         </div>
     </div>
 </div>

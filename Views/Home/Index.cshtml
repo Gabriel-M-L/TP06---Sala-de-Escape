@@ -1,13 +1,32 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Bienvenido</h1>
-    <ul>
-        <li><a href="@Url.Action("Juego", "Home")">Nueva Partida</a></li>
-        <li><a href="@Url.Action("Continuar", "Home")">Continuar</a></li>
-        <li><a href="@Url.Action("Historia", "Home")">Historia</a></li>
-        <li><a href="@Url.Action("Integrantes", "Home")">Integrantes</a></li>
-    </ul>
-</div>
+<section class="escape-hero crt-frame text-center">
+    <img src="/imagenes/logoEscapeRoom.png" alt="Logo de la sala de escape" class="logo">
+    <div class="menu-grid">
+        <a class="menu-card" href="@Url.Action("Juego", "Home")">
+            <span class="tag-suit tag-hearts">Corazones</span>
+            <h2 class="menu-card-title">Nueva Partida</h2>
+            <p class="menu-card-text">Comenzar una apuesta nueva en la sala principal.</p>
+        </a>
+
+        <a class="menu-card" href="@Url.Action("Continuar", "Home")">
+            <span class="tag-suit tag-spades">Picas</span>
+            <h2 class="menu-card-title">Continuar</h2>
+            <p class="menu-card-text">Retomar la última sesión y seguir escapando.</p>
+        </a>
+
+        <a class="menu-card" href="@Url.Action("Historia", "Home")">
+            <span class="tag-suit tag-diamonds">Diamantes</span>
+            <h2 class="menu-card-title">Historia</h2>
+            <p class="menu-card-text">Descubrir el origen del casino y sus sombras.</p>
+        </a>
+
+        <a class="menu-card" href="@Url.Action("Integrantes", "Home")">
+            <span class="tag-suit tag-clubs">Tréboles</span>
+            <h2 class="menu-card-title">Integrantes</h2>
+            <p class="menu-card-text">Conocer al equipo detrás de la sala de escape.</p>
+        </a>
+    </div>
+</section>
