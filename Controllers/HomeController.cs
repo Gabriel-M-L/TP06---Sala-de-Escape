@@ -39,43 +39,6 @@ public class HomeController : Controller
         return View();
     }
 
-    private int ObtenerPistasDisponibles()
-    {
-        string? pistas = HttpContext.Session.GetString("Pistas");
-        return int.TryParse(pistas, out int cantidad) ? cantidad : 0;
-    }
-
-    private void AgregarPistas(int cantidad)
-    {
-        if (cantidad <= 0)
-        {
-            return;
-        }
-
-        int pistasActuales = ObtenerPistasDisponibles();
-        HttpContext.Session.SetString("Pistas", (pistasActuales + cantidad).ToString());
-    }
-
-    private int CalcularPistasGanadas(Comodin comodin)
-    {
-        if (comodin == null || string.IsNullOrWhiteSpace(comodin.Descripcion))
-        {
-            return 0;
-        }
-
-        if (comodin.Descripcion.Contains("2 pistas", StringComparison.OrdinalIgnoreCase))
-        {
-            return 2;
-        }
-
-        if (comodin.Descripcion.Contains("pista", StringComparison.OrdinalIgnoreCase))
-        {
-            return 1;
-        }
-
-        return 0;
-    }
-
     public IActionResult Continuar()
     {
         return View();
@@ -85,7 +48,6 @@ public class HomeController : Controller
     public IActionResult Jugar(string usuario, bool continuar)
     {
         BD bd = new BD();
-        HttpContext.Session.SetString("Pistas", "0");
         if (continuar)
         {
             if(!bd.RecuperarUsuario(usuario))
@@ -96,6 +58,8 @@ public class HomeController : Controller
             HttpContext.Session.SetString("Usuario", usuario);
             HttpContext.Session.SetString("Intentos", "8");
             HttpContext.Session.SetString("Completados", "0");
+            HttpContext.Session.SetString("Pistas", "0");
+            HttpContext.Session.SetString("TiendaComodines", "");
             return RedirectToAction("NivelActual");
         }
         if (bd.BuscarUsuario(usuario))
@@ -106,6 +70,8 @@ public class HomeController : Controller
         HttpContext.Session.SetString("Usuario", usuario);
         HttpContext.Session.SetString("Intentos", "8");
         HttpContext.Session.SetString("Completados", "0");
+        HttpContext.Session.SetString("Pistas", "0");
+        HttpContext.Session.SetString("TiendaComodines", "");
         bd.GuardarUsuario(usuario);
         return RedirectToAction("IntroNivel1");
     }
@@ -115,6 +81,7 @@ public class HomeController : Controller
         BD bd = new BD();
         string usuario = HttpContext.Session.GetString("Usuario");
         int nivel = bd.ObtenerNivel(usuario);
+        Console.WriteLine($"Nivel actual del usuario {usuario}: {nivel}");
         string idsNiveles = bd.ObtenerIdsNivelesAleatorios(nivel);
         HttpContext.Session.SetString("IdsNivel", idsNiveles);
         if(nivel == 4)
@@ -130,8 +97,6 @@ public class HomeController : Controller
         string usuario = HttpContext.Session.GetString("Usuario");
         ViewBag.Plata = bd.ObtenerPlata(usuario);
         ViewBag.Comodin = bd.ObtenerComodin(usuario);
-
-        // Mantener la misma lista de comodines mientras el usuario está en la tienda
         string sessionComodines = HttpContext.Session.GetString("TiendaComodines");
         if (string.IsNullOrEmpty(sessionComodines))
         {
@@ -145,7 +110,7 @@ public class HomeController : Controller
             var lista = new List<Comodin>();
             foreach (var s in ids)
             {
-                if (int.TryParse(s, out int cid)) lista.Add(bd.ObtenerComodinPorId(cid));
+                if (int.TryParse(s, out int cid) && cid != bd.ObtenerComodin(usuario).Id) lista.Add(bd.ObtenerComodinPorId(cid));
             }
             ViewBag.Comodines = lista;
         }
@@ -156,35 +121,10 @@ public class HomeController : Controller
     {
         BD bd = new BD();
         string usuario = HttpContext.Session.GetString("Usuario");
+        Console.WriteLine($"Usuario: {usuario}");
         bd.CambiarNivel(usuario);
-        return RedirectToAction($"NivelActual");
+        return RedirectToAction("NivelActual");
     }
-    public IActionResult Nivel1()
-    {
-        BD bd = new BD();
-        ViewBag.Pistas = ObtenerPistasDisponibles();
-        if (bd.ObtenerNivel(HttpContext.Session.GetString("Usuario")) != 1)
-        {
-            return RedirectToAction("NivelActual");
-        }
-        if(int. Parse(HttpContext.Session.GetString("Intentos")) <= 0)
-        {
-
-            return RedirectToAction("SinIntentos");
-        }
-        ViewBag.Nivel = bd.ObtenerDatosNivel(1, int.Parse(HttpContext.Session.GetString("IdsNivel").Split(',', StringSplitOptions.RemoveEmptyEntries)[int.Parse(HttpContext.Session.GetString("Intentos")) - 1]));
-        if(int.Parse(HttpContext.Session.GetString("Completados")) >= 3)
-        {
-            bd.cambiarPlata(HttpContext.Session.GetString("Usuario"), int.Parse(HttpContext.Session.GetString("Intentos")));
-            HttpContext.Session.SetString("Intentos", "8");
-            HttpContext.Session.SetString("Completados", "0");
-            return RedirectToAction("Tienda");
-        }
-        return View();
-    }
-
-
-
     public IActionResult IntroNivel1()
     {
         return View();
@@ -204,12 +144,10 @@ public class HomeController : Controller
         BD bd = new BD();
         string usuario = HttpContext.Session.GetString("Usuario");
         int plata = bd.ObtenerPlata(usuario);
-        // cobrar toda la plata como cuota de revivición
         if (plata > 0)
         {
             bd.cambiarPlata(usuario, -plata);
         }
-        AgregarPistas(3);
         HttpContext.Session.SetString("Intentos", "8");
         HttpContext.Session.SetString("Completados", "0");
         return RedirectToAction("Nivel1");
@@ -219,10 +157,37 @@ public class HomeController : Controller
     {
         return View();
     }
+        public IActionResult Nivel1()
+    {
+        BD bd = new BD();
+        conseguirPistas();
+        ViewBag.Pistas = int.Parse(HttpContext.Session.GetString("Pistas"));
+        HttpContext.Session.SetString("TiendaComodines", "");
+        if (bd.ObtenerNivel(HttpContext.Session.GetString("Usuario")) != 1)
+        {
+            return RedirectToAction("NivelActual");
+        }
+        if(int. Parse(HttpContext.Session.GetString("Intentos")) <= 0)
+        {
+
+            return RedirectToAction("SinIntentos");
+        }
+        ViewBag.Nivel = bd.ObtenerDatosNivel(1, int.Parse(HttpContext.Session.GetString("IdsNivel").Split(',', StringSplitOptions.RemoveEmptyEntries)[int.Parse(HttpContext.Session.GetString("Intentos")) - 1]));
+        if(int.Parse(HttpContext.Session.GetString("Completados")) >= 3)
+        {
+            bd.cambiarPlata(HttpContext.Session.GetString("Usuario"), int.Parse(HttpContext.Session.GetString("Intentos")));
+            HttpContext.Session.SetString("Intentos", "8");
+            HttpContext.Session.SetString("Completados", "0");
+            return RedirectToAction("Tienda");
+        }
+        return View();
+    }
     public IActionResult Nivel2()
     {
         BD bd = new BD();
-        ViewBag.Pistas = ObtenerPistasDisponibles();
+        conseguirPistas();
+        ViewBag.Pistas = int.Parse(HttpContext.Session.GetString("Pistas"));
+        HttpContext.Session.SetString("TiendaComodines", "");
         if (bd.ObtenerNivel(HttpContext.Session.GetString("Usuario")) != 2)
         {
             return RedirectToAction("NivelActual");
@@ -245,7 +210,9 @@ public class HomeController : Controller
     public IActionResult Nivel3()
     {
         BD bd = new BD();
-        ViewBag.Pistas = ObtenerPistasDisponibles();
+        conseguirPistas();
+        ViewBag.Pistas = int.Parse(HttpContext.Session.GetString("Pistas"));
+        HttpContext.Session.SetString("TiendaComodines", "");
         if (bd.ObtenerNivel(HttpContext.Session.GetString("Usuario")) != 3)
         {
             return RedirectToAction("NivelActual");
@@ -270,8 +237,9 @@ public class HomeController : Controller
     {
         Random random = new Random(); 
         BD bd = new BD();
-        Nivel nivel = new Nivel();
-        ViewBag.Pistas = ObtenerPistasDisponibles();
+        conseguirPistas();
+        ViewBag.Pistas = int.Parse(HttpContext.Session.GetString("Pistas"));
+        HttpContext.Session.SetString("TiendaComodines", "");
         if (bd.ObtenerNivel(HttpContext.Session.GetString("Usuario")) != 4)
         {
             return RedirectToAction("NivelActual");
@@ -290,23 +258,137 @@ public class HomeController : Controller
             HttpContext.Session.SetString("Completados", "0");
             return RedirectToAction("Tienda");
         }
-        ViewBag.Nivel = nivel.ConstruirNivel4(int.Parse(HttpContext.Session.GetString("IdsNivel").Split(',', StringSplitOptions.RemoveEmptyEntries)[random.Next(0, 3)]));
+        int numero = int.Parse(HttpContext.Session.GetString("IdsNivel").Split(',', StringSplitOptions.RemoveEmptyEntries)[random.Next(0, 3)]);
+        Console.WriteLine(numero);
+        ViewBag.Nivel = ConstruirNivel4(numero);
+        Console.WriteLine($"Nivel 4 - Consigna: {ViewBag.Nivel.Desafio}, Respuesta: {ViewBag.Nivel.Respuesta}, Pista: {ViewBag.Nivel.Pista}");
         return View();
     }
-
-
-    [HttpPost]
-    public IActionResult VerificarRespuesta(string respuesta, int id)
+    public Nivel ConstruirNivel4(int id)
     {
         BD bd = new BD();
+        string pregunta = "";
+        string consigna = "";
+        string respuesta = "";
+        string pista = "";
+        List<Carta> cartas = new List<Carta>();
+        string imagesHtml = "";
+        Random random = new Random();
+        switch (id)
+        {
+            case 1:
+                pregunta = bd.ObtenerPregunta(1);
+                cartas = GenerarCarta(5);
+                imagesHtml = "<div style=\"display:flex;gap:8px;align-items:center;\">"
+                    + string.Join("", cartas.Select(c => $"<img src=\"images/{c.Imagen}\" alt=\"{c.Palo} {c.Numero}\" style=\"height:100px;\">"))
+                    + "</div>";
+                consigna = pregunta + " " + imagesHtml;
+                respuesta = cartas[1].Palo + cartas[1].Numero;
+                pista = "la carta que necesitas es la segunda de la lista";
+                break;
+            case 2:
+                pregunta = bd.ObtenerPregunta(2);
+                cartas = GenerarCarta(5);
+                imagesHtml = "<div style=\"display:flex;gap:8px;align-items:center;\">"
+                    + string.Join("", cartas.Select(c => $"<img src=\"images/{c.Imagen}\" alt=\"{c.Palo} {c.Numero}\" style=\"height:100px;\">"))
+                    + "</div>";
+                consigna = pregunta + " " + imagesHtml;
+                respuesta = cartas[2].Palo + cartas[2].Numero;
+                pista = $"la carta que necesitas es de {cartas[2].Palo}";
+                break;
+            case 3:
+                int ran = random.Next(0, 5);
+                pregunta = bd.ObtenerPregunta(3);
+                cartas = GenerarCarta(5);
+                imagesHtml = "<div style=\"display:flex;gap:8px;align-items:center;\">"
+                    + string.Join("", cartas.Select(c => $"<img src=\"images/{c.Imagen}\" alt=\"{c.Palo} {c.Numero}\" style=\"height:100px;\">"))
+                    + "</div>";
+                consigna = "Qué carta estaba en la posición " + (ran + 1) + " " + imagesHtml;
+                respuesta = cartas[ran].Palo + cartas[ran].Numero;
+                pista = $"la carta que necesitas es de {cartas[ran].Numero}";
+                break;
+            case 4:
+                pregunta = bd.ObtenerPregunta(4);
+                cartas = GenerarCarta(5);
+                imagesHtml = "<div style=\"display:flex;gap:8px;align-items:center;\">"
+                    + string.Join("", cartas.Select(c => $"<img src=\"images/{c.Imagen}\" alt=\"{c.Palo} {c.Numero}\" style=\"height:100px;\">"))
+                    + "</div>";
+                consigna = pregunta + " " + imagesHtml;
+                int numero = 0;
+                foreach (Carta carta in cartas)
+                {
+                    if(carta.Palo == "Corazones")
+                    {
+                        numero ++;
+                    }
+                }
+                respuesta = numero.ToString();
+                pista = $"la cantidad de cartas de corazones es mas o menos {numero + random.Next(-1, 2)}";
+                break;
+        }
+        Console.WriteLine($"Nivel 4 - Id: {id}, Consigna: {consigna}, Respuesta: {respuesta}, Pista: {pista}");
+        return new Nivel { Desafio = consigna, Respuesta = respuesta, Pista = pista };
+    }
+    public List<Carta> GenerarCarta(int cantidad)
+    {
+        List<Carta> cartas = new List<Carta>();
+        Random random = new Random();
+        string[] palos = { "Corazones", "Diamantes", "Tréboles", "Picas" };
+        string[] numeros = { "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K" };
+
+        for (int i = 0; i < cantidad; i++)
+        {
+            string palo = palos[random.Next(palos.Length)];
+            string numero = numeros[random.Next(numeros.Length)];
+            string imagen = $"{palo}_{numero}.png"; 
+            cartas.Add(new Carta { Palo = palo, Numero = numero, Imagen = imagen });
+        }
+
+        return cartas;
+    }
+    public void conseguirPistas()
+    {
+        BD bd = new BD();
+        string usuario = HttpContext.Session.GetString("Usuario");
+        Console.WriteLine(HttpContext.Session.GetString("Pista"));
+        if (bd.ObtenerComodin(usuario) != null)
+        {
+            if (bd.ObtenerComodin(usuario).Id == 1)
+            {
+                int pistas = int.Parse(HttpContext.Session.GetString("Pista")) + 1;
+                HttpContext.Session.SetString("Pista", pistas.ToString());
+            }
+            else if (bd.ObtenerNivel(usuario)%2 == 1 && bd.ObtenerComodin(usuario).Id == 2)
+            {
+                int pistas = int.Parse(HttpContext.Session.GetString("Pista")) + 2;
+                HttpContext.Session.SetString("Pista", pistas.ToString());
+            }
+            else if (bd.ObtenerNivel(usuario)%2 == 0 && bd.ObtenerComodin(usuario).Id == 3)
+            {
+                int pistas = int.Parse(HttpContext.Session.GetString("Pista")) + 2;
+                HttpContext.Session.SetString("Pista", pistas.ToString());
+            }
+        }  
+    }
+
+    [HttpPost]
+    public IActionResult VerificarRespuesta(string respuesta, int id, int pistasUsadas)
+    {
+        BD bd = new BD();
+        int intentos;
         int nivel = bd.ObtenerNivel(HttpContext.Session.GetString("Usuario"));
         Nivel datosNivel = bd.ObtenerDatosNivel(nivel, id);
-        if (respuesta == datosNivel.Respuesta)
+        HttpContext.Session.SetString("Pistas", (int.Parse(HttpContext.Session.GetString("Pistas")) - pistasUsadas).ToString());
+        if (respuesta.ToUpper() == datosNivel.Respuesta)
         {
             int completados = int.Parse(HttpContext.Session.GetString("Completados")) + 1;
             HttpContext.Session.SetString("Completados", completados.ToString());
         }
-        int intentos = int.Parse(HttpContext.Session.GetString("Intentos")) - 1;
+        else if (bd.ObtenerComodin(HttpContext.Session.GetString("Usuario")) != null && bd.ObtenerComodin(HttpContext.Session.GetString("Usuario")).Id == 4)
+        {
+            intentos = int.Parse(HttpContext.Session.GetString("Intentos")) + 1;
+        }
+        intentos = int.Parse(HttpContext.Session.GetString("Intentos")) - 1;
         HttpContext.Session.SetString("Intentos", intentos.ToString());
         return RedirectToAction($"Nivel{nivel}");
     }
@@ -322,38 +404,15 @@ public class HomeController : Controller
         {
             bd.cambiarPlata(usuario, -comodin.Precio);
             bd.CambiarComodin(usuario, id);
-            int pistasGanadas = CalcularPistasGanadas(comodin);
-            if (pistasGanadas > 0)
-            {
-                AgregarPistas(pistasGanadas);
-            }
             Nmensaje = "Comodín comprado con éxito.";
-            if (pistasGanadas > 0)
-            {
-                Nmensaje += pistasGanadas == 1 ? " Ganaste 1 pista." : $" Ganaste {pistasGanadas} pistas.";
-            }
         }
         else
         {
             Nmensaje = "No tenes suficiente plata para comprar este comodín.";
         }
-        // No regeneramos la lista de la tienda aquí: la acción Tienda leerá la lista desde sesión
         return RedirectToAction("Tienda", new { mensaje = Nmensaje });
     }
 
-    [HttpPost]
-    public IActionResult UsarPista()
-    {
-        int pistasDisponibles = ObtenerPistasDisponibles();
-        if (pistasDisponibles <= 0)
-        {
-            return Json(new { success = false, remaining = 0, message = "No te quedan pistas." });
-        }
-
-        pistasDisponibles--;
-        HttpContext.Session.SetString("Pistas", pistasDisponibles.ToString());
-        return Json(new { success = true, remaining = pistasDisponibles });
-    }
     
     public IActionResult CerrarSesion()
     {

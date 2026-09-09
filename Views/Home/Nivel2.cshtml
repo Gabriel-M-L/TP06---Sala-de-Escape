@@ -23,11 +23,12 @@
                 </div>
             </div>
 
-            <form method="post" action="@Url.Action("VerificarRespuesta", "Home")">
+            <form action="@Url.Action("VerificarRespuesta", "Home")" method="post">
                 <input type="hidden" name="id" value="@ViewBag.Nivel.Id" />
                 <div class="mb-3">
+                    <input type="hidden" name="pistasUsadas" id="pistasUsadas" value="0"/>
                     <label for="respuesta" class="form-label">Tu Respuesta:</label>
-                    <input type="text" class="form-control form-control-lg" id="respuesta" name="respuesta" placeholder="Ingrese el NUMERO de la respuesta correcta..." required />
+                    <input type="text" class="form-control form-control-lg" id="respuesta" name="respuesta" placeholder="Ingresa el NUMERO de la opcion correcta..." required />
                 </div>
                 <button type="submit" class="btn btn-success btn-lg w-100">Enviar Respuesta</button>
             </form>
@@ -35,27 +36,17 @@
             <hr />
 
             <div class="mt-4">
-                @if (ViewBag.Pistas > 0)
-                {
-                    <button class="btn btn-outline-light w-100" type="button" onclick="mostrarPista('pistaNivel2', this)">
-                        💡 Mostrar pista
-                    </button>
-                }
-                else
-                {
-                    <button class="btn btn-outline-light w-100" type="button" disabled>
-                        💡 Mostrar pista
-                    </button>
-                    <small class="text-muted d-block mt-2">No te quedan pistas.</small>
-                }
                 <small class="text-muted d-block mt-2">Pistas disponibles: @ViewBag.Pistas</small>
-                <div class="collapse mt-3" id="pistaNivel2">
+                <button class="btn btn-outline-light w-100" type="button" id = "botonPista" onclick="mostrarPista(@ViewBag.Pistas)">
+                    💡 Mostrar pista
+                </button>
+                <div class="collapse mt-3">
                     <div class="card level-card level-hint-shell crt-frame">
                         <div class="card-header">
                             <h6 class="mb-0">💡 Pista</h6>
                         </div>
                         <div class="card-body">
-                            <p>@ViewBag.Nivel.Pista</p>
+                            <p id = "pista"></p>
                         </div>
                     </div>
                 </div>
@@ -70,33 +61,16 @@
 
 @section Scripts {
     <script>
-        async function mostrarPista(pistaId, boton) {
-            try {
-                const response = await fetch('@Url.Action("UsarPista", "Home")', {
-                    method: 'POST'
-                });
-
-                const data = await response.json();
-
-                if (!data.success) {
-                    alert(data.message || 'No te quedan pistas.');
-                    return;
-                }
-
-                const elemento = document.getElementById(pistaId);
-                if (elemento) {
-                    const collapse = bootstrap.Collapse.getOrCreateInstance(elemento);
-                    collapse.show();
-                }
-
-                if (boton) {
-                    boton.disabled = true;
-                    boton.textContent = data.remaining > 0
-                        ? `💡 Pista mostrada (${data.remaining} restantes)`
-                        : '💡 Pista mostrada';
-                }
-            } catch (error) {
-                alert('No se pudo mostrar la pista.');
+        async function mostrarPista(pistasDisponibles) {
+        var pista = document.getElementById('pista');
+        var pistasUsadas = document.getElementById('pistasUsadas');
+            if (pistasDisponibles > 0) {
+                pista.innerText = "@ViewBag.Nivel.Pista";
+                pistasUsadas.value = parseInt(pistasUsadas.value) + 1;
+            }
+            else {
+                document.getElementById('botonPista').disabled = true;
+                pista.innerText = "No hay más pistas disponibles.";
             }
         }
 
