@@ -566,6 +566,14 @@ small,
   font-size: 1.06rem;
   line-height: 1.7;
 }
+.consigna-html-4{
+  display: flex;
+  flex-direction: row;
+  gap: 0.45rem;
+  padding: 0.25rem 0;
+  font-size: 1.06rem;
+  line-height: 1.7;
+}
 
 .consigna-html .escape-badge {
   align-self: flex-start;

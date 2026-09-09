@@ -147,7 +147,7 @@ public class BD
         string pregunta;
         using (SqlConnection connection = new SqlConnection(_connectionString))
         {
-            string query = "SELECT Pregunta FROM Preguntas WHERE Id = @id";
+            string query = "SELECT Pregunta FROM Nivel4 WHERE Id = @id";
             pregunta = connection.QueryFirstOrDefault<string>(query, new { id });
         }
         return pregunta;

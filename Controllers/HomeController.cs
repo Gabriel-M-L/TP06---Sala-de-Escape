@@ -81,14 +81,10 @@ public class HomeController : Controller
         BD bd = new BD();
         string usuario = HttpContext.Session.GetString("Usuario");
         int nivel = bd.ObtenerNivel(usuario);
+        string idsNiveles;
         Console.WriteLine($"Nivel actual del usuario {usuario}: {nivel}");
-        string idsNiveles = bd.ObtenerIdsNivelesAleatorios(nivel);
+        idsNiveles = bd.ObtenerIdsNivelesAleatorios(nivel);
         HttpContext.Session.SetString("IdsNivel", idsNiveles);
-        if(nivel == 4)
-        {
-            return RedirectToAction("ConstruirNivel4");
-        }
-
         return RedirectToAction($"Nivel{nivel}");
     }
     public IActionResult Tienda(string mensaje)
@@ -259,9 +255,7 @@ public class HomeController : Controller
             return RedirectToAction("Tienda");
         }
         int numero = int.Parse(HttpContext.Session.GetString("IdsNivel").Split(',', StringSplitOptions.RemoveEmptyEntries)[random.Next(0, 3)]);
-        Console.WriteLine(numero);
         ViewBag.Nivel = ConstruirNivel4(numero);
-        Console.WriteLine($"Nivel 4 - Consigna: {ViewBag.Nivel.Desafio}, Respuesta: {ViewBag.Nivel.Respuesta}, Pista: {ViewBag.Nivel.Pista}");
         return View();
     }
     public Nivel ConstruirNivel4(int id)
@@ -272,48 +266,39 @@ public class HomeController : Controller
         string respuesta = "";
         string pista = "";
         List<Carta> cartas = new List<Carta>();
-        string imagesHtml = "";
+        string imagesHtml = "<div class='consigna-html-4'>";
         Random random = new Random();
+        cartas = GenerarCarta(5);
+        foreach (Carta carta in cartas)
+        {
+            imagesHtml += $"<img src='{carta.Imagen}' alt='{carta.Palo} {carta.Numero}' style='height:200px; margin-right: 10px; width: 150px;'>";
+        }
+        imagesHtml += "</div>";
+        imagesHtml += "<span class='d-block mt-2 text-muted'>Jimbo considera que estos simbolos te pueden servir:</span><span class='d-block mt-2 tag-suit'>♥ ♠ ♦ ♣</span>";
         switch (id)
         {
             case 1:
                 pregunta = bd.ObtenerPregunta(1);
-                cartas = GenerarCarta(5);
-                imagesHtml = "<div style=\"display:flex;gap:8px;align-items:center;\">"
-                    + string.Join("", cartas.Select(c => $"<img src=\"images/{c.Imagen}\" alt=\"{c.Palo} {c.Numero}\" style=\"height:100px;\">"))
-                    + "</div>";
-                consigna = pregunta + " " + imagesHtml;
-                respuesta = cartas[1].Palo + cartas[1].Numero;
-                pista = "la carta que necesitas es la segunda de la lista";
+                consigna = $"<p>{pregunta}</p> {imagesHtml}";
+                respuesta = cartas[1].Numero + cartas[1].Palo;
+                pista = "<p>la carta que necesitas es la segunda de la lista</p>";
                 break;
             case 2:
                 pregunta = bd.ObtenerPregunta(2);
-                cartas = GenerarCarta(5);
-                imagesHtml = "<div style=\"display:flex;gap:8px;align-items:center;\">"
-                    + string.Join("", cartas.Select(c => $"<img src=\"images/{c.Imagen}\" alt=\"{c.Palo} {c.Numero}\" style=\"height:100px;\">"))
-                    + "</div>";
-                consigna = pregunta + " " + imagesHtml;
-                respuesta = cartas[2].Palo + cartas[2].Numero;
-                pista = $"la carta que necesitas es de {cartas[2].Palo}";
+                consigna = $"<p>{pregunta}</p> {imagesHtml}";
+                respuesta = cartas[2].Numero + cartas[2].Palo;
+                pista = $"<p>la carta que necesitas es de {cartas[2].Palo}</p>";
                 break;
             case 3:
                 int ran = random.Next(0, 5);
                 pregunta = bd.ObtenerPregunta(3);
-                cartas = GenerarCarta(5);
-                imagesHtml = "<div style=\"display:flex;gap:8px;align-items:center;\">"
-                    + string.Join("", cartas.Select(c => $"<img src=\"images/{c.Imagen}\" alt=\"{c.Palo} {c.Numero}\" style=\"height:100px;\">"))
-                    + "</div>";
-                consigna = "Qué carta estaba en la posición " + (ran + 1) + " " + imagesHtml;
-                respuesta = cartas[ran].Palo + cartas[ran].Numero;
-                pista = $"la carta que necesitas es de {cartas[ran].Numero}";
+                consigna = $"<p>Qué carta estaba en la posición {ran + 1}?</p> {imagesHtml}";
+                respuesta = cartas[ran].Numero + cartas[ran].Palo;
+                pista = $"<p>la carta que necesitas es de {cartas[ran].Numero}</p>";
                 break;
             case 4:
                 pregunta = bd.ObtenerPregunta(4);
-                cartas = GenerarCarta(5);
-                imagesHtml = "<div style=\"display:flex;gap:8px;align-items:center;\">"
-                    + string.Join("", cartas.Select(c => $"<img src=\"images/{c.Imagen}\" alt=\"{c.Palo} {c.Numero}\" style=\"height:100px;\">"))
-                    + "</div>";
-                consigna = pregunta + " " + imagesHtml;
+                consigna = $"<p>{pregunta}</p> {imagesHtml}";
                 int numero = 0;
                 foreach (Carta carta in cartas)
                 {
@@ -323,24 +308,28 @@ public class HomeController : Controller
                     }
                 }
                 respuesta = numero.ToString();
-                pista = $"la cantidad de cartas de corazones es mas o menos {numero + random.Next(-1, 2)}";
+                pista = $"<p>la cantidad de cartas de corazones es mas o menos {numero + random.Next(-1, 2)}</p>";
                 break;
         }
-        Console.WriteLine($"Nivel 4 - Id: {id}, Consigna: {consigna}, Respuesta: {respuesta}, Pista: {pista}");
+        Console.WriteLine($"Pregunta: {pregunta}, Consigna: {consigna}, Respuesta: {respuesta}, Pista: {pista}");
         return new Nivel { Desafio = consigna, Respuesta = respuesta, Pista = pista };
     }
     public List<Carta> GenerarCarta(int cantidad)
     {
         List<Carta> cartas = new List<Carta>();
         Random random = new Random();
-        string[] palos = { "Corazones", "Diamantes", "Tréboles", "Picas" };
+        string[] palos = { "♥", "♦", "♣", "♠" };
+        string[] palos2 = { "Corazones", "Diamantes", "Treboles", "Picas" };
         string[] numeros = { "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K" };
+        
 
         for (int i = 0; i < cantidad; i++)
         {
-            string palo = palos[random.Next(palos.Length)];
+            int numeroRandom = random.Next(palos.Length);
+            string palo = palos[numeroRandom];
+            string palo2 = palos2[numeroRandom];
             string numero = numeros[random.Next(numeros.Length)];
-            string imagen = $"{palo}_{numero}.png"; 
+            string imagen = $"/imagenes/cartas/{numero}_{palo2}.png"; 
             cartas.Add(new Carta { Palo = palo, Numero = numero, Imagen = imagen });
         }
 
@@ -392,7 +381,25 @@ public class HomeController : Controller
         HttpContext.Session.SetString("Intentos", intentos.ToString());
         return RedirectToAction($"Nivel{nivel}");
     }
-
+    public IActionResult VerificarRespuesta4(string respuesta, string respuestaCorrecta, int pistasUsadas)
+    {
+        BD bd = new BD();
+        int intentos;
+        int nivel = bd.ObtenerNivel(HttpContext.Session.GetString("Usuario"));
+        HttpContext.Session.SetString("Pistas", (int.Parse(HttpContext.Session.GetString("Pistas")) - pistasUsadas).ToString());
+        if (respuesta.ToUpper() == respuestaCorrecta.ToUpper())
+        {
+            int completados = int.Parse(HttpContext.Session.GetString("Completados")) + 1;
+            HttpContext.Session.SetString("Completados", completados.ToString());
+        }
+        else if (bd.ObtenerComodin(HttpContext.Session.GetString("Usuario")) != null && bd.ObtenerComodin(HttpContext.Session.GetString("Usuario")).Id == 4)
+        {
+            intentos = int.Parse(HttpContext.Session.GetString("Intentos")) + 1;
+        }
+        intentos = int.Parse(HttpContext.Session.GetString("Intentos")) - 1;
+        HttpContext.Session.SetString("Intentos", intentos.ToString());
+        return RedirectToAction($"Nivel{nivel}");
+    }
     public IActionResult ComprarComodin(int id)
     {
         BD bd = new BD();
