@@ -59,6 +59,7 @@ public class HomeController : Controller
             HttpContext.Session.SetString("Intentos", "8");
             HttpContext.Session.SetString("Completados", "0");
             HttpContext.Session.SetString("Pistas", "0");
+            HttpContext.Session.SetString("Pista", "0");
             HttpContext.Session.SetString("TiendaComodines", "");
             return RedirectToAction("NivelActual");
         }
@@ -71,6 +72,7 @@ public class HomeController : Controller
         HttpContext.Session.SetString("Intentos", "8");
         HttpContext.Session.SetString("Completados", "0");
         HttpContext.Session.SetString("Pistas", "0");
+        HttpContext.Session.SetString("Pista", "0");
         HttpContext.Session.SetString("TiendaComodines", "");
         bd.GuardarUsuario(usuario);
         return RedirectToAction("IntroNivel1");
@@ -82,7 +84,6 @@ public class HomeController : Controller
         string usuario = HttpContext.Session.GetString("Usuario");
         int nivel = bd.ObtenerNivel(usuario);
         string idsNiveles;
-        Console.WriteLine($"Nivel actual del usuario {usuario}: {nivel}");
         idsNiveles = bd.ObtenerIdsNivelesAleatorios(nivel);
         HttpContext.Session.SetString("IdsNivel", idsNiveles);
         return RedirectToAction($"Nivel{nivel}");
@@ -117,7 +118,6 @@ public class HomeController : Controller
     {
         BD bd = new BD();
         string usuario = HttpContext.Session.GetString("Usuario");
-        Console.WriteLine($"Usuario: {usuario}");
         bd.CambiarNivel(usuario);
         return RedirectToAction("NivelActual");
     }
@@ -252,7 +252,7 @@ public class HomeController : Controller
             bd.cambiarPlata(HttpContext.Session.GetString("Usuario"), int.Parse(HttpContext.Session.GetString("Intentos")));
             HttpContext.Session.SetString("Intentos", "8");
             HttpContext.Session.SetString("Completados", "0");
-            return RedirectToAction("Tienda");
+            return View("Victoria");
         }
         int numero = int.Parse(HttpContext.Session.GetString("IdsNivel").Split(',', StringSplitOptions.RemoveEmptyEntries)[random.Next(0, 3)]);
         ViewBag.Nivel = ConstruirNivel4(numero);
@@ -302,7 +302,7 @@ public class HomeController : Controller
                 int numero = 0;
                 foreach (Carta carta in cartas)
                 {
-                    if(carta.Palo == "Corazones")
+                    if(carta.Palo == "♥")
                     {
                         numero ++;
                     }
@@ -311,7 +311,6 @@ public class HomeController : Controller
                 pista = $"<p>la cantidad de cartas de corazones es mas o menos {numero + random.Next(-1, 2)}</p>";
                 break;
         }
-        Console.WriteLine($"Pregunta: {pregunta}, Consigna: {consigna}, Respuesta: {respuesta}, Pista: {pista}");
         return new Nivel { Desafio = consigna, Respuesta = respuesta, Pista = pista };
     }
     public List<Carta> GenerarCarta(int cantidad)
@@ -338,26 +337,35 @@ public class HomeController : Controller
     public void conseguirPistas()
     {
         BD bd = new BD();
-        string usuario = HttpContext.Session.GetString("Usuario");
-        Console.WriteLine(HttpContext.Session.GetString("Pista"));
+        string? usuario = HttpContext.Session.GetString("Usuario");
+        if (string.IsNullOrEmpty(usuario))
+        {
+            return;
+        }
         if (bd.ObtenerComodin(usuario) != null)
         {
             if (bd.ObtenerComodin(usuario).Id == 1)
             {
-                int pistas = int.Parse(HttpContext.Session.GetString("Pista")) + 1;
+                int pistas = ObtenerEnteroDeSesion("Pista") + 1;
                 HttpContext.Session.SetString("Pista", pistas.ToString());
             }
             else if (bd.ObtenerNivel(usuario)%2 == 1 && bd.ObtenerComodin(usuario).Id == 2)
             {
-                int pistas = int.Parse(HttpContext.Session.GetString("Pista")) + 2;
+                int pistas = ObtenerEnteroDeSesion("Pista") + 2;
                 HttpContext.Session.SetString("Pista", pistas.ToString());
             }
             else if (bd.ObtenerNivel(usuario)%2 == 0 && bd.ObtenerComodin(usuario).Id == 3)
             {
-                int pistas = int.Parse(HttpContext.Session.GetString("Pista")) + 2;
+                int pistas = ObtenerEnteroDeSesion("Pista") + 2;
                 HttpContext.Session.SetString("Pista", pistas.ToString());
             }
         }  
+    }
+
+    private int ObtenerEnteroDeSesion(string key, int valorPorDefecto = 0)
+    {
+        string? valor = HttpContext.Session.GetString(key);
+        return int.TryParse(valor, out int resultado) ? resultado : valorPorDefecto;
     }
 
     [HttpPost]
