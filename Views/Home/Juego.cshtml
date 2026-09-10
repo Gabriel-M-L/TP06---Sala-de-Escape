@@ -2,20 +2,30 @@
     ViewData["Title"] = "Nueva Partida";
 }
 
-<h1>Nueva Partida</h1>
+<section class="page-shell crt-frame">
+    <div class="page-header">
+        <span class="escape-badge">Inicio</span>
+        <h1 class="escape-title">Nueva Partida</h1>
+    </div>
 
-<section>
-    <h2>Instrucciones</h2>
-    <p>Bienvenido al juego de Escape Room. Antes de comenzar, por favor ingresa tu nombre de usuario para iniciar una nueva partida.</p>
-    <p>@ViewBag.Mensaje</p>
-    <form method="post" action="@Url.Action("Jugar", "Home")">
-        <p>Nombre de Usuario:</p>
-        <input type="text" name="usuario" id="usuario" required />
-        <input type="hidden" name="continuar" value="false"/>
-        <button type="submit">Comenzar</button>
-    </form>
+    <div class="panel-card">
+        <p class="page-intro">Bienvenido al juego de Escape Room. Antes de comenzar, por favor ingresa tu nombre de usuario para iniciar una nueva partida.</p>
+        <p class="page-intro">@ViewBag.Mensaje</p>
+
+        <form method="post" action="@Url.Action("Jugar", "Home")" class="auth-form">
+            <div>
+                <label for="usuario" class="form-label">Nombre de usuario</label>
+                <div class="input-row">
+                    <input type="text" name="usuario" id="usuario" class="form-control form-control-lg" required />
+                </div>
+            </div>
+
+            <input type="hidden" name="continuar" value="false" />
+
+            <div class="input-row">
+                <button type="submit" class="btn btn-primary btn-lg">Comenzar</button>
+                <a href="@Url.Action("Index", "Home")" class="btn btn-outline-light btn-lg">Volver al inicio</a>
+            </div>
+        </form>
+    </div>
 </section>
-
-<div>
-    <p><a href="@Url.Action("Index", "Home")">Volver al inicio</a></p>
-</div>

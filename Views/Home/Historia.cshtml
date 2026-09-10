@@ -2,74 +2,87 @@
     ViewData["Title"] = "Historia";
 }
 
-<h1>Los Acertijos Mortales de Jimbo</h1>
+<section class="page-shell story-shell crt-frame">
+    <div class="page-header">
+        <span class="escape-badge">Lore</span>
+        <h1 class="escape-title">Los Acertijos Mortales de Jimbo</h1>
+    </div>
 
-<section>
-    <h2>El Encierro</h2>
-    <p>Jimbo estaba aburrido. Muy aburrido. Tanto que decidió encerrarte en una habitación llena de acertijos mortales creados por sus hermanos Odd Todd y Even Steven, dos personajes tan peculiares como peligrosos.</p>
-    <p>Tu única oportunidad de escape depende de tu ingenio para resolver estos acertijos y, en las tiendas entre pisos, de saber gastar sabiamente el dinero que ganes según tu desempeño.</p>
+    <div class="story-block">
+        <h2>El Encierro</h2>
+        <p>Jimbo estaba aburrido. Muy aburrido. Tanto que decidió encerrarte en una habitación llena de acertijos mortales creados por sus hermanos Odd Todd y Even Steven, dos personajes tan peculiares como peligrosos.</p>
+        <p>Tu única oportunidad de escape depende de tu ingenio para resolver estos acertijos y, en las tiendas entre pisos, de saber gastar sabiamente el dinero que ganes según tu desempeño.</p>
+    </div>
+
+    <div class="story-block">
+        <h2>El Sistema de Recompensas</h2>
+        <p>Cada pregunta que respondas te gastará un intento. Entre más intentos te sobren, más dinero tendrás para gastar en la tienda.</p>
+    </div>
+
+    <div class="story-block">
+        <h2>Los Comodines</h2>
+        <p>Entre pisos, encontrarás tiendas donde puedes usar tu dinero para comprar comodines especiales.</p>
+    </div>
+
+    <div class="story-block">
+        <h2>Los Personajes</h2>
+        <div class="story-grid">
+            <article class="story-card">
+                <span class="story-tag">Jimbo</span>
+                <h3>Jimbo</h3>
+                <p>Tu captor. Un ser aburrido que decidió entretenerse encerrándote.</p>
+            </article>
+
+            <article class="story-card">
+                <span class="story-tag">Odd Todd</span>
+                <h3>Odd Todd</h3>
+                <p>El hermano de Jimbo encargado de crear los acertijos que requieren lógica y deducción.</p>
+            </article>
+
+            <article class="story-card">
+                <span class="story-tag">Even Steven</span>
+                <h3>Even Steven</h3>
+                <p>El otro hermano especialista en pruebas de memoria y observación.</p>
+            </article>
+        </div>
+    </div>
+
+    <div class="story-block">
+        <h2>Los Acertijos</h2>
+        <div class="story-grid">
+            <article class="story-card">
+                <span class="story-tag">Nivel 1</span>
+                <h4>La Secuencia Mortal</h4>
+                <p>Odd Todd te muestra una secuencia de cartas, símbolos, números o figuras.</p>
+            </article>
+
+            <article class="story-card">
+                <span class="story-tag">Nivel 2</span>
+                <h4>El Comodín Mentiroso</h4>
+                <p>Aparecen varios comodines y cada uno dice una afirmación. Debes descubrir quién dice la verdad.</p>
+            </article>
+
+            <article class="story-card">
+                <span class="story-tag">Nivel 3</span>
+                <h4>El Código de Odd Todd</h4>
+                <p>Una caja cerrada contiene la llave para continuar. Debes descubrir un código de 4 dígitos.</p>
+            </article>
+
+            <article class="story-card">
+                <span class="story-tag">Nivel 4</span>
+                <h4>El Juicio de Even Steven</h4>
+                <p>Steven te muestra una serie de cartas durante unos segundos y debes memorizar lo observado.</p>
+            </article>
+        </div>
+    </div>
+
+    <div class="story-block">
+        <h2>Tu Misión</h2>
+        <p>Resuelve los acertijos de Odd Todd y Even Steven. Gasta sabiamente en las tiendas.</p>
+        <p><strong>¿Estás listo para escapar?</strong></p>
+    </div>
+
+    <div class="page-links">
+        <a href="@Url.Action("Index", "Home")">Volver al inicio</a>
+    </div>
 </section>
-
-<section>
-    <h2>El Sistema de Recompensas</h2>
-    <p>Cada pregunta que respondas te gastará un intento, entre cuantos mas intentos te sobren, mas dinero para gastar en la tienda.</p>
-    
-    <h3>Los Comodines</h3>
-    <p>Entre pisos, encontrarás tiendas donde puedes usar tu dinero para comprar comodines especiales:</p>
-</section>
-
-<section>
-    <h2>Los Personajes</h2>
-    
-    <div>
-        <h3>Jimbo</h3>
-        <p>Tu captor. Un ser aburrido que decidió entretenerse encerrándote.</p>
-    </div>
-    
-    <div>
-        <h3>Odd Todd</h3>
-        <p>El hermano de Jimbo encargado de crear los acertijos que requieren lógica y deducción. Sus acertijos incluyen secuencias y códigos que debes descifrar.</p>
-    </div>
-    
-    <div>
-        <h3>Even Steven</h3>
-        <p>El otro hermano especialista en pruebas de memoria y observación. Sus acertijos ponen a prueba tu capacidad de retención y atención al detalle.</p>
-    </div>
-</section>
-
-<section>
-    <h2>Los Acertijos</h2>
-    
-    <div>
-        <h4>1. La Secuencia Mortal (Odd Todd)</h4>
-        <p>Odd Todd te muestra una secuencia de cartas, símbolos, números o figuras. Debes descubrir qué elemento debería venir después.</p>
-    </div>
-    
-    <div>
-        <h4>2. Even Steven — El comodín mentiroso (Even Steven)</h4>
-        <p>Aparecen varios comodines y cada uno dice una afirmación.</p>
-        <p>El jugador tiene que descubrir quién dice la verdad.</p>
-    </div>
-    
-    <div>
-        <h4>3. El Código de Odd Todd (Odd Todd)</h4>
-        <p>Una caja cerrada contiene la llave para continuar. Debes descubrir un código de 4 dígitos usando las pistas.</p>
-    </div>
-    
-    <div>
-        <h4>4. El Juicio de Even Steven (Even Steven)</h4>
-        <p>Steven te muestra una serie de cartas durante unos segundos. Debes memorizar y responder preguntas sobre lo que viste.</p>
-        <p>A medida que avanzas, aparecen más cartas y tienes menos tiempo. Sin vuelta atrás una vez que empiece.</p>
-    </div>
-</section>
-
-
-<section>
-    <h2>Tu Misión</h2>
-    <p>Resuelve los acertijos de Odd Todd y Even Steven. Gasta sabiamente en las tiendas.</p>
-    <p><strong>¿Estás listo para escapar?</strong></p>
-</section>
-
-<div>
-    <p><a href="@Url.Action("Index", "Home")">Volver al inicio</a></p>
-</div>

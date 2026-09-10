@@ -51,7 +51,6 @@ public class BD
         {
             string query = "UPDATE Usuario SET NivelActual = NivelActual + 1 WHERE NombreUsuario = @usuario AND NivelActual < 4";
             connection.Execute(query, new { usuario });
-            Console.WriteLine($"Nivel cambiado para el usuario: {usuario}");
         }
     }
 

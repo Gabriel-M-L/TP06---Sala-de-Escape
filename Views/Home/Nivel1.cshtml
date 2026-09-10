@@ -39,16 +39,16 @@
 
             <div class="mt-4">
                 <small class="text-muted d-block mt-2">Pistas disponibles: @ViewBag.Pistas</small>
-                <button class="btn btn-outline-light w-100" type="button" id = "botonPista" onclick="mostrarPista(@ViewBag.Pistas)">
+                <button class="btn btn-outline-light w-100" type="button" id="botonPista" onclick="mostrarPista(@ViewBag.Pistas)">
                     💡 Mostrar pista
                 </button>
-                <div class="collapse mt-3">
+                <div class="collapse mt-3" id="bloquePista">
                     <div class="card level-card level-hint-shell crt-frame">
                         <div class="card-header">
                             <h6 class="mb-0">💡 Pista</h6>
                         </div>
                         <div class="card-body">
-                            <p id = "pista"></p>
+                            <p id="pista"></p>
                         </div>
                     </div>
                 </div>
@@ -63,20 +63,34 @@
 
 @section Scripts {
     <script>
-        async function mostrarPista(pistasDisponibles) {
-        var pista = document.getElementById('pista');
-        var pistasUsadas = document.getElementById('pistasUsadas');
+        function decodeHtmlEntities(value) {
+            const textarea = document.createElement('textarea');
+            textarea.innerHTML = value;
+            return textarea.value;
+        }
+
+        function mostrarPista(pistasDisponibles) {
+            var pista = document.getElementById('pista');
+            var pistasUsadas = document.getElementById('pistasUsadas');
+            var bloquePista = document.getElementById('bloquePista');
+            var botonPista = document.getElementById('botonPista');
+            var textoPista = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.Nivel.Pista));
+
             if (pistasDisponibles > 0) {
-                pista.innerText = "@ViewBag.Nivel.Pista";
+                pista.innerText = decodeHtmlEntities(textoPista);
+                bloquePista.classList.add('show');
+                bloquePista.style.display = 'block';
                 pistasUsadas.value = parseInt(pistasUsadas.value) + 1;
-            }
-            else {
-                document.getElementById('botonPista').disabled = true;
+                botonPista.disabled = true;
+            } else {
+                bloquePista.classList.add('show');
+                bloquePista.style.display = 'block';
+                botonPista.disabled = true;
                 pista.innerText = "No hay más pistas disponibles.";
             }
         }
 
-        document.querySelector('form').addEventListener('submit', function(e) {
+        document.querySelector('form').addEventListener('submit', function (e) {
             var respuesta = document.getElementById('respuesta').value.trim();
             if (!respuesta) {
                 alert('Por favor ingresa una respuesta');

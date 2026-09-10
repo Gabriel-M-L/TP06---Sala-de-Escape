@@ -2,20 +2,27 @@
     ViewData["Title"] = "Integrantes";
 }
 
-<h1>Integrantes del Equipo</h1>
+<section class="page-shell crt-frame">
+    <div class="page-header">
+        <span class="escape-badge">Equipo</span>
+        <h1 class="escape-title">Integrantes del Equipo</h1>
+    </div>
 
-<section>
-    <h2>Desarrolladores</h2>
-    
-    <div>
-        <h3>Gabriel Martinez Loufer</h3>
-        <p>Rol: Desarrollador Principal</p>
-        <p>Responsable del backend y lógica del juego</p>
-        <p>Responsable del frontend e interfaz de usuario</p>
-        <img src="yo.jpg" alt="yo_xd">
+    <div class="team-card">
+        <img src="/imagenes/comodin/Jimbo.webp" alt="Gabriel Martinez Loufer" class="team-photo" />
+
+        <div class="team-body">
+            <h2>Gabriel Martinez Loufer</h2>
+            <p class="team-role">Desarrollador Principal</p>
+            <ul class="team-list">
+                <li>Responsable del backend y lógica del juego.</li>
+                <li>Encargado del frontend e interfaz de usuario.</li>
+                <li>Diseño y coherencia visual de la experiencia.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="page-links">
+        <a href="@Url.Action("Index", "Home")">Volver al inicio</a>
     </div>
 </section>
-
-<div>
-    <p><a href="@Url.Action("Index", "Home")">Volver al inicio</a></p>
-</div>
