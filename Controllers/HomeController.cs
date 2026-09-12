@@ -270,10 +270,10 @@ public class HomeController : Controller
         }
         if(int.Parse(HttpContext.Session.GetString("Completados")) >= 3)
         {
-            bd.cambiarPlata(HttpContext.Session.GetString("Usuario"), 0);
-            HttpContext.Session.SetString("Intentos", "8");
-            HttpContext.Session.SetString("Completados", "0");
-            return RedirectToAction("Tienda");
+            // bd.cambiarPlata(HttpContext.Session.GetString("Usuario"), 0);
+            // HttpContext.Session.SetString("Intentos", "8");
+            // HttpContext.Session.SetString("Completados", "0");
+            return RedirectToAction("Victoria");
         }
         if(int. Parse(HttpContext.Session.GetString("Intentos")) <= 0)
         {
@@ -396,17 +396,19 @@ public class HomeController : Controller
         Nivel datosNivel = bd.ObtenerDatosNivel(nivel, id);
         DescontarPistasUsadas(pistasUsadas);
 
-        bool respuestaCorrecta = respuesta.ToUpper() == datosNivel.Respuesta;
-        if (respuestaCorrecta)
+        if (respuesta.ToUpper() == datosNivel.Respuesta)
         {
             int completados = int.Parse(HttpContext.Session.GetString("Completados")) + 1;
             HttpContext.Session.SetString("Completados", completados.ToString());
-            return RedirectToAction($"Nivel{nivel}");
+            TempData["RespuestaCorrecta"] = true;
         }
-
-        if (DebeNoConsumirIntentoPorComodin4())
+        else
         {
-            return RedirectToAction($"Nivel{nivel}");
+            TempData["RespuestaCorrecta"] = false;
+            if (DebeNoConsumirIntentoPorComodin4())
+            {
+                return RedirectToAction($"Nivel{nivel}");
+            }
         }
 
         int intentos = int.Parse(HttpContext.Session.GetString("Intentos")) - 1;
@@ -425,12 +427,15 @@ public class HomeController : Controller
         {
             int completados = int.Parse(HttpContext.Session.GetString("Completados")) + 1;
             HttpContext.Session.SetString("Completados", completados.ToString());
-            return RedirectToAction($"Nivel{nivel}");
+            TempData["RespuestaCorrecta"] = true;
         }
-
-        if (DebeNoConsumirIntentoPorComodin4())
+        else
         {
-            return RedirectToAction($"Nivel{nivel}");
+            TempData["RespuestaCorrecta"] = false;
+            if (DebeNoConsumirIntentoPorComodin4())
+            {
+                return RedirectToAction($"Nivel{nivel}");
+            }
         }
 
         int intentos = int.Parse(HttpContext.Session.GetString("Intentos")) - 1;

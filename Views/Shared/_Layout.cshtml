@@ -14,6 +14,8 @@
     string? usuarioActual = Context.Session.GetString("Usuario");
     string? intentosRestantes = Context.Session.GetString("Intentos");
     string? desafiosCompletados = Context.Session.GetString("Completados");
+    bool respuestaCorrecta = TempData["RespuestaCorrecta"] is true;
+    bool respuestaIncorrecta = TempData["RespuestaCorrecta"] is false;
     int plataActual = 0;
     Comodin? comodinActual = null;
 
@@ -37,6 +39,14 @@
         comodinActual = bd.ObtenerComodin(usuarioActual);
     }
 }
+    @if (respuestaCorrecta)
+    {
+        <div class="correct-answer-filter" aria-hidden="true"></div>
+    }
+    @if (respuestaIncorrecta)
+    {
+        <div class="incorrect-answer-filter" aria-hidden="true"></div>
+    }
     <header>
         @if (!string.IsNullOrWhiteSpace(usuarioActual))
         {
