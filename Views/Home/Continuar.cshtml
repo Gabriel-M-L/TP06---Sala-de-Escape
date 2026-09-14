@@ -11,15 +11,15 @@
     <div class="panel-card">
         <p class="page-intro">@ViewBag.Mensaje</p>
 
-        <form method="post" action="@Url.Action("Jugar", "Home")" class="auth-form">
+        <form method="post" action="@Url.Action("Jugar", "Home")" class="auth-form" autocomplete="off">
             <div>
                 <label for="usuario" class="form-label">Ingrese el nombre de usuario</label>
                 <div class="input-row">
-                    <input type="text" name="usuario" id="usuario" class="form-control form-control-lg" required />
+                    <input type="text" name="usuario" id="usuario" class="form-control form-control-lg" required autocomplete="off" />
                 </div>
             </div>
 
-            <input type="hidden" name="continuar" value="true" />
+            <input type="hidden" name="continuar" value="true" autocomplete="off" />
 
             <div class="input-row">
                 <button type="submit" class="btn btn-primary btn-lg">Continuar</button>

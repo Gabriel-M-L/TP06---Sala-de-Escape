@@ -194,12 +194,6 @@ public class HomeController : Controller
         {
             return RedirectToAction("NivelActual");
         }
-        if(int. Parse(HttpContext.Session.GetString("Intentos")) <= 0)
-        {
-
-            return RedirectToAction("SinIntentos");
-        }
-        ViewBag.Nivel = bd.ObtenerDatosNivel(1, int.Parse(HttpContext.Session.GetString("IdsNivel").Split(',', StringSplitOptions.RemoveEmptyEntries)[int.Parse(HttpContext.Session.GetString("Intentos")) - 1]));
         if(int.Parse(HttpContext.Session.GetString("Completados")) >= 3)
         {
             bd.cambiarPlata(HttpContext.Session.GetString("Usuario"), int.Parse(HttpContext.Session.GetString("Intentos")));
@@ -207,6 +201,13 @@ public class HomeController : Controller
             HttpContext.Session.SetString("Completados", "0");
             return RedirectToAction("Tienda");
         }
+        if(int. Parse(HttpContext.Session.GetString("Intentos")) <= 0)
+        {
+
+            return RedirectToAction("SinIntentos");
+        }
+        ViewBag.Nivel = bd.ObtenerDatosNivel(1, int.Parse(HttpContext.Session.GetString("IdsNivel").Split(',', StringSplitOptions.RemoveEmptyEntries)[int.Parse(HttpContext.Session.GetString("Intentos")) - 1]));
+        
         return View();
     }
     public IActionResult Nivel2()
@@ -218,12 +219,6 @@ public class HomeController : Controller
         {
             return RedirectToAction("NivelActual");
         }
-        if(int. Parse(HttpContext.Session.GetString("Intentos")) <= 0)
-        {
-
-            return RedirectToAction("SinIntentos");
-        }
-        ViewBag.Nivel = bd.ObtenerDatosNivel(2, int.Parse(HttpContext.Session.GetString("IdsNivel").Split(',')[int.Parse(HttpContext.Session.GetString("Intentos")) - 1]));
         if(int.Parse(HttpContext.Session.GetString("Completados")) >= 3)
         {
             bd.cambiarPlata(HttpContext.Session.GetString("Usuario"), int.Parse(HttpContext.Session.GetString("Intentos")));
@@ -231,6 +226,13 @@ public class HomeController : Controller
             HttpContext.Session.SetString("Completados", "0");
             return RedirectToAction("Tienda");
         }
+        if(int. Parse(HttpContext.Session.GetString("Intentos")) <= 0)
+        {
+
+            return RedirectToAction("SinIntentos");
+        }
+        ViewBag.Nivel = bd.ObtenerDatosNivel(2, int.Parse(HttpContext.Session.GetString("IdsNivel").Split(',')[int.Parse(HttpContext.Session.GetString("Intentos")) - 1]));
+        
         return View();
     }
     public IActionResult Nivel3()
@@ -242,12 +244,6 @@ public class HomeController : Controller
         {
             return RedirectToAction("NivelActual");
         }
-        if(int. Parse(HttpContext.Session.GetString("Intentos")) <= 0)
-        {
-
-            return RedirectToAction("SinIntentos");
-        }
-        ViewBag.Nivel = bd.ObtenerDatosNivel(3, int.Parse(HttpContext.Session.GetString("IdsNivel").Split(',')[int.Parse(HttpContext.Session.GetString("Intentos")) - 1]));
         if(int.Parse(HttpContext.Session.GetString("Completados")) >= 3)
         {
             bd.cambiarPlata(HttpContext.Session.GetString("Usuario"), int.Parse(HttpContext.Session.GetString("Intentos")));
@@ -255,6 +251,13 @@ public class HomeController : Controller
             HttpContext.Session.SetString("Completados", "0");
             return RedirectToAction("Tienda");
         }
+        if(int. Parse(HttpContext.Session.GetString("Intentos")) <= 0)
+        {
+
+            return RedirectToAction("SinIntentos");
+        }
+        ViewBag.Nivel = bd.ObtenerDatosNivel(3, int.Parse(HttpContext.Session.GetString("IdsNivel").Split(',')[int.Parse(HttpContext.Session.GetString("Intentos")) - 1]));
+        
         return View();
     }
     public IActionResult Nivel4()
@@ -270,9 +273,6 @@ public class HomeController : Controller
         }
         if(int.Parse(HttpContext.Session.GetString("Completados")) >= 3)
         {
-            // bd.cambiarPlata(HttpContext.Session.GetString("Usuario"), 0);
-            // HttpContext.Session.SetString("Intentos", "8");
-            // HttpContext.Session.SetString("Completados", "0");
             return RedirectToAction("Victoria");
         }
         if(int. Parse(HttpContext.Session.GetString("Intentos")) <= 0)
@@ -300,27 +300,27 @@ public class HomeController : Controller
             imagesHtml += $"<img src='{carta.Imagen}' alt='{carta.Palo} {carta.Numero}' style='height:200px; margin-right: 10px; width: 150px;'>";
         }
         imagesHtml += "</div>";
-        imagesHtml += "<span class='d-block mt-2 text-muted'>Jimbo considera que estos simbolos te pueden servir:</span><span class='d-block mt-2 tag-suit'>♥ ♠ ♦ ♣</span>";
+        imagesHtml += "<span class='d-block mt-2 text-muted'>Jimbo considera que estos simbolos te pueden servir:<span class='d-block mt-2 tag-suit'><button type='button' class='btn btn-sm btn-outline-light symbol-btn' onclick='insertSymbol(\"♥\")'>♥</button> <button type='button' class='btn btn-sm btn-outline-light symbol-btn' onclick='insertSymbol(\"♠\")'>♠</button> <button type='button' class='btn btn-sm btn-outline-light symbol-btn' onclick='insertSymbol(\"♦\")'>♦</button> <button type='button' class='btn btn-sm btn-outline-light symbol-btn' onclick='insertSymbol(\"♣\")'>♣</button></span>";
         switch (id)
         {
             case 1:
                 pregunta = bd.ObtenerPregunta(1);
                 consigna = $"<p>{pregunta}</p> {imagesHtml}";
                 respuesta = cartas[1].Numero + cartas[1].Palo;
-                pista = "<p>la carta que necesitas es la segunda de la lista</p>";
+                pista = "la carta que necesitas es la segunda de la lista";
                 break;
             case 2:
                 pregunta = bd.ObtenerPregunta(2);
                 consigna = $"<p>{pregunta}</p> {imagesHtml}";
                 respuesta = cartas[2].Numero + cartas[2].Palo;
-                pista = $"<p>la carta que necesitas es de {cartas[2].Palo}</p>";
+                pista = $"la carta que necesitas es de {cartas[2].Palo}";
                 break;
             case 3:
                 int ran = random.Next(0, 5);
                 pregunta = bd.ObtenerPregunta(3);
                 consigna = $"<p>Qué carta estaba en la posición {ran + 1}?</p> {imagesHtml}";
                 respuesta = cartas[ran].Numero + cartas[ran].Palo;
-                pista = $"<p>la carta que necesitas es de {cartas[ran].Numero}</p>";
+                pista = $"la carta que necesitas es de {cartas[ran].Numero}";
                 break;
             case 4:
                 pregunta = bd.ObtenerPregunta(4);
@@ -334,7 +334,7 @@ public class HomeController : Controller
                     }
                 }
                 respuesta = numero.ToString();
-                pista = $"<p>la cantidad de cartas de corazones es mas o menos {numero + random.Next(-1, 2)}</p>";
+                pista = $"la cantidad de cartas de corazones es menor que {numero + 2}";
                 break;
         }
         return new Nivel { Desafio = consigna, Respuesta = respuesta, Pista = pista };

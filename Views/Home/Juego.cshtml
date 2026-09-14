@@ -12,15 +12,15 @@
         <p class="page-intro">Bienvenido al juego de Escape Room. Antes de comenzar, por favor ingresa tu nombre de usuario para iniciar una nueva partida.</p>
         <p class="page-intro">@ViewBag.Mensaje</p>
 
-        <form method="post" action="@Url.Action("Jugar", "Home")" class="auth-form">
+        <form method="post" action="@Url.Action("Jugar", "Home")" class="auth-form" autocomplete="off">
             <div>
                 <label for="usuario" class="form-label">Nombre de usuario</label>
                 <div class="input-row">
-                    <input type="text" name="usuario" id="usuario" class="form-control form-control-lg" required />
+                    <input type="text" name="usuario" id="usuario" class="form-control form-control-lg" required autocomplete="off" />
                 </div>
             </div>
 
-            <input type="hidden" name="continuar" value="false" />
+            <input type="hidden" name="continuar" value="false" autocomplete="off" />
 
             <div class="input-row">
                 <button type="submit" class="btn btn-primary btn-lg">Comenzar</button>

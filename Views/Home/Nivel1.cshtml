@@ -25,12 +25,12 @@
                 </div>
             </div>
 
-            <form action="@Url.Action("VerificarRespuesta", "Home")" method="post">
-                <input type="hidden" name="id" value="@ViewBag.Nivel.Id" />
+            <form action="@Url.Action("VerificarRespuesta", "Home")" method="post" autocomplete="off">
+                <input type="hidden" name="id" value="@ViewBag.Nivel.Id" autocomplete="off" />
                 <div class="mb-3">
-                    <input type="hidden" name="pistasUsadas" id="pistasUsadas" value="0"/>
+                    <input type="hidden" name="pistasUsadas" id="pistasUsadas" value="0" autocomplete="off"/>
                     <label for="respuesta" class="form-label">Tu Respuesta:</label>
-                    <input type="text" class="form-control form-control-lg" id="respuesta" name="respuesta" placeholder="Ingresa la respuesta..." required />
+                    <input type="text" class="form-control form-control-lg" id="respuesta" name="respuesta" placeholder="Ingresa la respuesta..." required autocomplete="off" />
                 </div>
                 <button type="submit" class="btn btn-success btn-lg w-100">Enviar Respuesta</button>
             </form>
@@ -67,6 +67,13 @@
             const textarea = document.createElement('textarea');
             textarea.innerHTML = value;
             return textarea.value;
+        }
+
+        function insertSymbol(sym) {
+            var input = document.getElementById('respuesta');
+            if (!input) return;
+            input.value = (input.value || '') + sym;
+            input.focus();
         }
 
         function mostrarPista(pistasDisponibles) {
