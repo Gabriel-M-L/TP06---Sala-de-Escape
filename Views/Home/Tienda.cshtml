@@ -1,5 +1,6 @@
 @{
     ViewData["Title"] = "Tienda";
+    Comodin? comodinActual = ViewBag.Comodin as Comodin;
 }
 
 @functions {
@@ -36,7 +37,10 @@
                             <h5 class="card-title scanline-text">@comodin.Nombre</h5>
                             <p class="card-text">Descripción: @comodin.Descripcion</p>
                             <p class="card-text">Precio: @comodin.Precio</p>
-                            <a href="@Url.Action("ComprarComodin", "Home", new { id = comodin.Id })" class="btn btn-primary">Comprar comodín</a>
+                                     <a href="@Url.Action("ComprarComodin", "Home", new { id = comodin.Id })"
+                                         class="btn btn-primary"
+                                         data-confirmacion="@(comodinActual == null ? $"Vas a comprar este comodín. ¿Confirmás la compra?" : $"Este comodín va a reemplazar a tu comodín actual: {comodinActual.Nombre}. ¿Deseás confirmar la compra?")"
+                                         onclick="return confirm(this.dataset.confirmacion);">Comprar comodín</a>
                         </div>
                     </div>
                 </div>
